@@ -1,0 +1,670 @@
+================================================================================
+                    DAR EL-ANWAR EDUCATIONAL MANAGEMENT SYSTEM
+                         ODOO MODULE SPECIFICATION DOCUMENT
+================================================================================
+
+SYSTEM OVERVIEW
+--------------------------------------------------------------------------------
+This system manages an educational institution that combines:
+- Daycare/Nursery (حضانة)
+- Quran Classes (قرآن)
+- Tutoring Groups (مجموعات تقوية)
+- Literacy Classes (تعليم هجاء)
+- Foundation Groups (مجموعات تأسيس)
+- Courses (دورات)
+- Summer Activities (نشاط صيفي)
+
+================================================================================
+                              LIST OF MODELS (65 TOTAL)
+================================================================================
+
+==================================
+SECTION 1: STUDENT MANAGEMENT (6)
+==================================
+
+1. education.student (الطالب)
+   - Main student record
+   - Fields: name, code (auto), birthdate, photo, enrollment_date, period (morning/evening)
+   - Links to: parent, class, department, bus, branch, enrollment_source
+   - States: active, archived, pending_enrollment
+
+2. education.parent (ولي الأمر)
+   - Parent/Guardian information
+   - Fields: name, job, phone, email, relation (father/mother/guardian)
+   - Links to: student (One2many)
+
+3. education.authorized.pickup (المصرح لهم بالاستلام)
+   - People authorized to pick up student
+   - Fields: name, relation, phone, id_number
+   - Links to: student (Many2one)
+
+4. education.sibling (الأخ/الأخت)
+   - Sibling information for marketing purposes
+   - Fields: name, birthdate, gender, age (computed)
+   - Links to: student (Many2one)
+   - Purpose: Notify when sibling reaches enrollment age (3.5 years)
+
+5. education.student.note (ملاحظة الطالب)
+   - Notes/observations on students
+   - Fields: date, note, created_by
+   - Links to: student (Many2one)
+
+6. education.student.archive (أرشيف الطلاب)
+   - Archive reason and history
+   - Fields: archive_date, reason, notes
+   - Links to: student (Many2one)
+
+
+==================================
+SECTION 2: ACADEMIC STRUCTURE (7)
+==================================
+
+7. education.department (القسم)
+   - Main departments: Nursery, Quran, Tutoring, Literacy, Foundation, Courses, Summer
+   - Fields: name, code, type, is_active
+   - Links to: classes (One2many), levels (One2many), subjects (One2many)
+
+8. education.level (المستوى)
+   - Grade levels for tutoring (1st, 2nd, 3rd grade...)
+   - Fields: name, sequence, department_id
+   - Links to: department (Many2one)
+
+9. education.class (الفصل)
+   - Class/Group (Class 1, 2, 3... or teacher groups)
+   - Fields: name, code, capacity, current_count (computed)
+   - Links to: department (Many2one), teacher (Many2one), schedule (Many2one)
+
+10. education.subject (المادة)
+    - Subjects: Arabic, English, Math, Quran, Islamic Studies
+    - Fields: name, code, department_id
+    - Links to: department (Many2one)
+
+11. education.schedule (الميعاد)
+    - Time slots (11:00-12:00, 12:00-1:00, etc.)
+    - Fields: name, time_from, time_to, period (morning/evening)
+
+12. education.academic.year (العام الدراسي)
+    - Academic year tracking
+    - Fields: name, date_start, date_end, is_current
+
+13. education.student.enrollment (تسجيل الطالب بالقسم)
+    - Student enrollment in department (Many2Many with details)
+    - Fields: student_id, department_id, class_id, subject_id, teacher_id, schedule_id
+    - Purpose: Student can be enrolled in multiple departments simultaneously
+
+
+==================================
+SECTION 3: EMPLOYEE MANAGEMENT (8)
+==================================
+
+14. education.employee (الموظف)
+    - Teachers and staff
+    - Fields: name, code, photo, birthdate, id_number, phone, email
+    - Fields: qualification, university, graduation_date
+    - Fields: job_title, category_id, salary, work_days_per_month
+    - Fields: hire_date, branch_id, attendance_time_in, attendance_time_out
+    - States: active, archived
+
+15. education.employee.category (تصنيف الموظف)
+    - Categories: Administration, Finance, Teaching Staff, Support
+    - Fields: name, code
+
+16. education.employee.qualification (مؤهل الموظف)
+    - Qualifications and courses taken
+    - Fields: name, institution, date, certificate
+    - Links to: employee (Many2one)
+
+17. education.employee.attendance (حضور الموظف)
+    - Staff attendance records
+    - Fields: date, time_in, time_out, status (present/absent/late)
+    - Links to: employee (Many2one)
+
+18. education.employee.salary (راتب الموظف)
+    - Monthly salary records
+    - Fields: month, year, basic_salary, deductions, bonuses, net_salary, paid
+    - Links to: employee (Many2one)
+
+19. education.employee.penalty (جزاء الموظف)
+    - Disciplinary actions
+    - Fields: date, reason, penalty_type, amount, notes
+    - Links to: employee (Many2one)
+
+20. education.employee.complaint (شكوى الموظف)
+    - Complaints against employees
+    - Fields: date, complaint, complainant, status, resolution
+    - Links to: employee (Many2one)
+
+21. education.employee.loan (سلفة الموظف)
+    - Salary advances
+    - Fields: date, amount, reason, status (pending/approved/paid/deducted)
+    - Links to: employee (Many2one)
+
+
+========================================
+SECTION 4: SUBSCRIPTIONS & PAYMENTS (6)
+========================================
+
+22. education.subscription.type (نوع الاشتراك)
+    - Subscription types: Nursery Fees, Quran Fees, Tutoring Fees, Bus Fees
+    - Fields: name, code, amount, department_id
+    - Links to: department (Many2one), payment_plan (Many2one)
+
+23. education.payment.plan (نظام السداد)
+    - Payment plans: Monthly, Annual, One-time
+    - Fields: name, installment_count, interval_months
+    - Example: Monthly = 12 installments, 1 month interval
+
+24. education.student.subscription (اشتراك الطالب)
+    - Student's subscription to a type
+    - Fields: student_id, subscription_type_id, payment_plan_id
+    - Fields: start_date, end_date, amount, status
+    - Links to: student (Many2one), installments (One2many)
+
+25. education.installment (الدفعة)
+    - Individual installment (12 per year for monthly)
+    - Fields: subscription_id, sequence, due_date, amount, is_paid, paid_date
+    - Links to: subscription (Many2one), payments (One2many)
+
+26. education.payment (السداد)
+    - Actual payment transaction
+    - Fields: installment_id, date, amount, payment_method, received_by
+    - Links to: installment (Many2one), receipt (Many2one)
+
+27. education.payment.receipt (إيصال السداد)
+    - Payment receipt for printing
+    - Fields: receipt_number (auto), date, student_id, amount, installments
+    - Links to: student (Many2one), payments (One2many)
+
+
+========================================
+SECTION 5: EVALUATION & ASSESSMENT (7)
+========================================
+
+28. education.grade.scale (مقياس التقييم)
+    - Grade scales types
+    - Examples: "Yes/No", "Strong/Medium/Weak", "Excellent/Good/Acceptable"
+    - Fields: name, code
+    - Links to: values (One2many)
+
+29. education.grade.scale.value (قيمة المقياس)
+    - Individual values in a scale
+    - Fields: name, scale_id, sequence, numeric_value
+    - Examples: "Yes"=1, "No"=0 | "Excellent"=3, "Good"=2, "Acceptable"=1
+
+30. education.evaluation.template (قالب التقييم)
+    - Assessment template structure
+    - Fields: name, code, subject_id, department_id
+    - Links to: subject (Many2one), questions (One2many)
+    - Note: Templates are uploaded as Excel files then parsed
+
+31. education.evaluation.question (سؤال التقييم)
+    - Questions/items in a template
+    - Fields: template_id, sequence, question_text, grade_scale_id
+    - Links to: template (Many2one), grade_scale (Many2one)
+
+32. education.evaluation.goal (هدف التقييم)
+    - Evaluation goals (shared or individual per student)
+    - Fields: name, date, teacher_id, subject_id, class_id, template_id
+    - Fields: is_shared_goal, goal_description
+    - Links to: teacher (Many2one), students (Many2many)
+
+33. education.student.evaluation (تقييم الطالب)
+    - Student's actual evaluation record
+    - Fields: student_id, goal_id, template_id, evaluator_id
+    - Fields: date, summary_grade, notes, is_completed
+    - Links to: student (Many2one), answers (One2many)
+
+34. education.evaluation.answer (إجابة التقييم)
+    - Student's answer/score per question
+    - Fields: evaluation_id, question_id, grade_value_id, notes
+    - Links to: evaluation (Many2one), question (Many2one)
+
+
+==================================
+SECTION 6: ATTENDANCE (2)
+==================================
+
+35. education.attendance (الحضور)
+    - Daily attendance session
+    - Fields: date, department_id, class_id, recorded_by
+    - Links to: department (Many2one), class (Many2one), lines (One2many)
+
+36. education.attendance.line (سطر الحضور)
+    - Individual student attendance entry
+    - Fields: attendance_id, student_id, status (present/absent), notes
+    - Links to: attendance (Many2one), student (Many2one)
+    - Default: All students marked present, mark absent ones
+
+
+==================================
+SECTION 7: TRANSPORTATION (4)
+==================================
+
+37. education.bus (الباص)
+    - Bus information
+    - Fields: name, code, capacity, plate_number
+    - Links to: driver (Many2one), routes (One2many)
+
+38. education.driver (السائق)
+    - Driver information
+    - Fields: name, phone, license_number, photo
+    - Links to: bus (Many2one)
+
+39. education.bus.route (خط السير)
+    - Bus routes
+    - Fields: name, bus_id, stops, description
+    - Links to: bus (Many2one)
+
+40. education.student.transport (مواصلات الطالب)
+    - Student transport assignment
+    - Fields: student_id, bus_id, driver_id, pickup_method
+    - Pickup methods: self, parent, bus
+    - Links to: student (Many2one), bus (Many2one)
+
+
+========================================
+SECTION 8: TREASURY & ACCOUNTING (5)
+========================================
+
+41. education.treasury (الخزينة)
+    - Daily treasury balance tracking
+    - Fields: date, opening_balance, closing_balance, total_income, total_expense
+    - Computed from transactions
+
+42. education.transaction (حركة مالية)
+    - Financial transaction (income/expense)
+    - Fields: date, time, type (income/expense), category_id
+    - Fields: amount, description, reference, created_by, branch_id
+    - Links to: category (Many2one), branch (Many2one)
+    - Note: Cannot be deleted once saved (mentioned as issue in recording)
+
+43. education.transaction.category (تصنيف الحركة)
+    - Transaction categories
+    - Fields: name, code, type (income/expense)
+
+44. education.income.type (نوع الإيراد)
+    - Income types
+    - Examples: Subscriptions, Book Sales, Registration Fees
+    - Fields: name, code
+
+45. education.expense.type (نوع المصروف)
+    - Expense types
+    - Examples: Salaries, Supplies, Utilities, Maintenance
+    - Fields: name, code
+
+
+==================================
+SECTION 9: INVENTORY/BOOKS (5)
+==================================
+
+46. education.product.category (تصنيف المنتج)
+    - Book categories
+    - Examples: English Books, Arabic Books, Notebooks, Supplies
+    - Fields: name, code
+
+47. education.product (المنتج/الكتاب)
+    - Books and products
+    - Fields: name, code (auto), category_id, unit, purchase_price, sale_price
+    - Fields: quantity_in, quantity_out, quantity_balance (computed)
+    - Links to: category (Many2one), stock_in (One2many), stock_out (One2many)
+
+48. education.stock.in (وارد المخزن)
+    - Stock incoming (purchases)
+    - Fields: date, product_id, quantity, unit_price, total_price
+    - Links to: product (Many2one), lines (One2many)
+    - Creates treasury transaction (expense)
+
+49. education.stock.out (صادر المخزن)
+    - Stock outgoing (sales)
+    - Fields: date, product_id, quantity, unit_price, total_price
+    - Links to: product (Many2one), lines (One2many)
+    - Creates treasury transaction (income)
+
+50. education.stock.move.line (سطر حركة المخزون)
+    - Individual items in stock move
+    - Fields: stock_move_id, product_id, quantity, unit_price
+    - Links to: stock_in or stock_out (Many2one)
+
+
+==================================
+SECTION 10: COMMUNICATION (3)
+==================================
+
+51. education.message (الرسالة)
+    - Messages to parents
+    - Fields: date, recipient_type (all/class/individual), recipients
+    - Fields: subject, body, sent_via (email/whatsapp/sms), status
+    - Links to: students (Many2many)
+
+52. education.message.template (قالب الرسالة)
+    - Message templates for common communications
+    - Examples: Payment Reminder, Absence Alert, Birthday Greeting, Sibling Enrollment
+    - Fields: name, subject, body, trigger (manual/auto)
+
+53. education.email.log (سجل الإيميلات)
+    - Sent email history
+    - Fields: date, recipient_email, subject, status (sent/failed), evaluation_id
+    - Links to: student (Many2one), evaluation (Many2one)
+
+
+==================================
+SECTION 11: CONFIGURATION (6)
+==================================
+
+54. education.branch (الفرع)
+    - Institution branches
+    - Fields: name, code, address, phone, is_main
+
+55. education.enrollment.source (مصدر التعرف)
+    - How family heard about institution
+    - Examples: Friends, Facebook, Instagram, TikTok, Location, Other
+    - Fields: name, code
+    - Purpose: Marketing analytics
+
+56. education.leave.reason (سبب الانقطاع)
+    - Reasons for leaving/interruption
+    - Examples: Travel, Illness, Conflict, Financial, Other
+    - Fields: name, code
+
+57. education.city (المدينة)
+    - Cities
+    - Fields: name, code
+
+58. education.address (العنوان)
+    - Common addresses
+    - Fields: name, city_id, street
+    - Links to: city (Many2one)
+
+59. education.settings (الإعدادات)
+    - System settings (inherits res.config.settings)
+    - Fields:
+      * institution_logo
+      * institution_name
+      * receipt_paper_size (A4/A5)
+      * printer_name
+      * payment_reminder_day (default: 10)
+      * absence_alert_days (default: 3)
+      * sibling_notification_age (default: 3.5 years)
+      * weekend_days (default: Friday)
+      * backup_path
+      * email_address
+      * email_password
+
+
+==================================
+SECTION 12: SYSTEM & USERS (4)
+==================================
+
+60. education.user.permission (صلاحية المستخدم)
+    - Custom permissions per feature
+    - Fields: user_id, feature, can_view, can_create, can_edit, can_delete
+    - Features: students, employees, subscriptions, treasury, reports, etc.
+    - Links to: user (Many2one)
+
+61. education.reminder (تذكير)
+    - System reminders/alerts
+    - Fields: title, description, reminder_date, reminder_time, is_done
+    - Shows on main dashboard
+
+62. education.daily.note (ملاحظة يومية)
+    - Dashboard daily notes
+    - Fields: date, note, created_by
+    - Shows on main dashboard
+
+63. education.notification (إشعار)
+    - System notifications (auto-generated)
+    - Types: unpaid_subscription, absent_student, sibling_age, pending_evaluation
+    - Fields: type, title, message, date, is_read, related_model, related_id
+
+
+==================================
+SECTION 13: HOMEWORK (2)
+==================================
+
+64. education.homework (الواجب)
+    - Homework assignments
+    - Fields: date, class_id, subject_id, teacher_id, description, due_date
+    - Links to: class (Many2one), subject (Many2one)
+
+65. education.student.homework (واجب الطالب)
+    - Student homework completion status
+    - Fields: homework_id, student_id, status (pending/done/incomplete), notes
+    - Links to: homework (Many2one), student (Many2one)
+
+
+================================================================================
+                              MODEL RELATIONSHIPS
+================================================================================
+
+STUDENT RELATIONSHIPS:
+----------------------
+education.student
+    ├── Many2one: education.parent (father_id)
+    ├── Many2one: education.parent (mother_id)
+    ├── Many2one: education.class
+    ├── Many2one: education.department
+    ├── Many2one: education.branch
+    ├── Many2one: education.enrollment.source
+    ├── Many2one: education.bus
+    ├── Many2one: education.driver
+    ├── Many2one: education.city
+    ├── One2many: education.sibling
+    ├── One2many: education.authorized.pickup
+    ├── One2many: education.student.enrollment
+    ├── One2many: education.student.subscription
+    ├── One2many: education.student.evaluation
+    ├── One2many: education.attendance.line
+    ├── One2many: education.student.note
+    ├── One2many: education.student.homework
+    └── One2many: education.student.archive
+
+
+SUBSCRIPTION RELATIONSHIPS:
+---------------------------
+education.student.subscription
+    ├── Many2one: education.student
+    ├── Many2one: education.subscription.type
+    ├── Many2one: education.payment.plan
+    └── One2many: education.installment
+
+education.installment
+    ├── Many2one: education.student.subscription
+    └── One2many: education.payment
+
+
+EVALUATION RELATIONSHIPS:
+-------------------------
+education.student.evaluation
+    ├── Many2one: education.student
+    ├── Many2one: education.employee (evaluator)
+    ├── Many2one: education.evaluation.template
+    ├── Many2one: education.evaluation.goal
+    └── One2many: education.evaluation.answer
+
+education.evaluation.template
+    ├── Many2one: education.subject
+    ├── Many2one: education.department
+    └── One2many: education.evaluation.question
+
+education.evaluation.question
+    ├── Many2one: education.evaluation.template
+    └── Many2one: education.grade.scale
+
+
+ACADEMIC RELATIONSHIPS:
+-----------------------
+education.department
+    ├── One2many: education.class
+    ├── One2many: education.level
+    └── One2many: education.subject
+
+education.class
+    ├── Many2one: education.department
+    ├── Many2one: education.employee (teacher)
+    └── Many2one: education.schedule
+
+
+EMPLOYEE RELATIONSHIPS:
+-----------------------
+education.employee
+    ├── Many2one: education.employee.category
+    ├── Many2one: education.branch
+    ├── One2many: education.class (classes taught)
+    ├── One2many: education.employee.qualification
+    ├── One2many: education.employee.attendance
+    ├── One2many: education.employee.salary
+    ├── One2many: education.employee.penalty
+    ├── One2many: education.employee.complaint
+    └── One2many: education.employee.loan
+
+
+TREASURY RELATIONSHIPS:
+-----------------------
+education.transaction
+    ├── Many2one: education.transaction.category
+    ├── Many2one: education.branch
+    └── Many2one: res.users (created_by)
+
+
+INVENTORY RELATIONSHIPS:
+------------------------
+education.product
+    ├── Many2one: education.product.category
+    ├── One2many: education.stock.in
+    └── One2many: education.stock.out
+
+
+================================================================================
+                              DASHBOARD FEATURES
+================================================================================
+
+MAIN DASHBOARD DISPLAYS:
+------------------------
+1. Total Students Count (active students in institution)
+2. Today's Absences Count
+3. Hosted Children Count (if applicable)
+4. Current Treasury Balance
+5. Charts:
+   - Expenses breakdown by category
+   - Income breakdown (subscriptions, book sales)
+   - Monthly income vs expenses
+6. Reminders list
+7. Daily notes
+8. Notifications (unpaid, absences, sibling alerts)
+
+
+================================================================================
+                              REPORTS NEEDED
+================================================================================
+
+STUDENT REPORTS:
+----------------
+1. Students by Age Range
+2. Students by Birthdate Range
+3. Parent Information Report (Excel export)
+4. Sibling Information Report
+5. Enrollment Source Statistics (pie chart)
+6. Students per Department/Class counts
+7. Attendance Report by Class and Month
+
+FINANCIAL REPORTS:
+------------------
+1. Daily Treasury Report
+2. Date Range Transaction Report
+3. Income Analysis (with charts)
+4. Expense Analysis (with charts)
+5. Net Profit Report
+6. Subscription Status Report (paid/unpaid)
+7. Unpaid Students List
+
+INVENTORY REPORTS:
+------------------
+1. Stock Balance Report
+2. Stock Movement Report
+3. Sales Report
+
+EMPLOYEE REPORTS:
+-----------------
+1. Employee List
+2. Attendance Report
+3. Salary Report
+
+
+================================================================================
+                              PRINTING TEMPLATES
+================================================================================
+
+1. Student Application Form (with parent signature section)
+2. Payment Receipt (A5, includes logo, student name, amount, date)
+3. Evaluation Report (PDF, sent to parents via email)
+4. Attendance Sheet (blank for manual tracking)
+5. Stock Report
+
+
+================================================================================
+                              AUTOMATED ACTIONS
+================================================================================
+
+1. Payment Reminder Notification (day 10 of month)
+2. Absence Alert (after 3 consecutive days)
+3. Sibling Age Alert (when sibling reaches 3.5 years)
+4. Unpaid Subscription Dashboard Counter
+5. Auto-generate 12 monthly installments when subscription created
+
+
+================================================================================
+                              USER PERMISSIONS
+================================================================================
+
+Granular permissions for each menu/feature:
+- Students (view, add, edit, delete, archive)
+- Employees (view, add, edit, delete, view salary)
+- Subscriptions (view, add, edit, reports)
+- Treasury (view, add income, add expense, view reports)
+- Inventory (view, stock in, stock out, view balance)
+- Evaluations (create, view, send to parents)
+- Attendance (record, view reports)
+- Settings (system settings, user management)
+
+
+================================================================================
+                              KNOWN ISSUES TO ADDRESS
+================================================================================
+
+From the recording, these issues were mentioned:
+1. Cannot delete erroneous treasury entries (need admin delete feature)
+2. Manual attendance entry is tedious (fingerprint integration desired)
+3. Some department statistics may be inaccurate due to student transfers
+4. Need better email integration for parent communication
+
+
+================================================================================
+                              SUMMARY COUNTS
+================================================================================
+
+| Category               | Model Count |
+|------------------------|-------------|
+| Student Management     | 6           |
+| Academic Structure     | 7           |
+| Employee Management    | 8           |
+| Subscriptions/Payments | 6           |
+| Evaluation/Assessment  | 7           |
+| Attendance             | 2           |
+| Transportation         | 4           |
+| Treasury/Accounting    | 5           |
+| Inventory              | 5           |
+| Communication          | 3           |
+| Configuration          | 6           |
+| System/Users           | 4           |
+| Homework               | 2           |
+|------------------------|-------------|
+| TOTAL                  | 65 models   |
+
+
+================================================================================
+                              END OF SPECIFICATION
+================================================================================
+
+Document Created: December 2024
+Project: Dar El-Anwar Educational Management System
+Platform: Odoo 19

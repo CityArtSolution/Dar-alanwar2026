@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========================== -->
+    <!-- DRIVER VIEWS -->
+    <!-- ========================== -->
+
+    <record id="view_education_driver_tree" model="ir.ui.view">
+        <field name="name">education.driver.tree</field>
+        <field name="model">education.driver</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="license_number"/>
+                <field name="license_expiry"/>
+                <field name="bus_count"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_education_driver_form" model="ir.ui.view">
+        <field name="name">education.driver.form</field>
+        <field name="model">education.driver</field>
+        <field name="arch" type="xml">
+            <form string="Driver">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_buses" type="object" class="oe_stat_button" icon="fa-bus">
+                            <field name="bus_count" widget="statinfo" string="Buses"/>
+                        </button>
+                        <button name="action_view_routes" type="object" class="oe_stat_button" icon="fa-road">
+                            <field name="route_count" widget="statinfo" string="Routes"/>
+                        </button>
+                        <button name="action_view_students" type="object" class="oe_stat_button" icon="fa-graduation-cap">
+                            <field name="student_count" widget="statinfo" string="Students"/>
+                        </button>
+                        <button name="action_view_transport" type="object" class="oe_stat_button" icon="fa-truck">
+                            <field name="transport_count" widget="statinfo" string="Transports"/>
+                        </button>
+                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                            <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+                        </button>
+                    </div>
+                    <field name="photo" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Driver Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="phone"/>
+                            <field name="mobile"/>
+                            <field name="id_number"/>
+                        </group>
+                        <group>
+                            <field name="license_number"/>
+                            <field name="license_expiry"/>
+                            <field name="hire_date"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="address" placeholder="Address..."/>
+                    </group>
+                    <notebook>
+                        <page string="Assigned Buses" name="buses">
+                            <field name="bus_ids">
+                                <list>
+                                    <field name="code"/>
+                                    <field name="name"/>
+                                    <field name="plate_number"/>
+                                    <field name="capacity"/>
+                                    <field name="student_count"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Additional notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_education_driver_search" model="ir.ui.view">
+        <field name="name">education.driver.search</field>
+        <field name="model">education.driver</field>
+        <field name="arch" type="xml">
+            <search string="Search Drivers">
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="license_number"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <filter string="License Expiring Soon" name="expiring" domain="[('license_expiry', '&lt;=', (context_today() + relativedelta(months=1)).strftime('%Y-%m-%d'))]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_education_driver" model="ir.actions.act_window">
+        <field name="name">Drivers</field>
+        <field name="res_model">education.driver</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- BUS VIEWS -->
+    <!-- ========================== -->
+
+    <record id="view_education_bus_tree" model="ir.ui.view">
+        <field name="name">education.bus.tree</field>
+        <field name="model">education.bus</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="plate_number"/>
+                <field name="driver_id"/>
+                <field name="capacity"/>
+                <field name="student_count"/>
+                <field name="available_seats"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_education_bus_form" model="ir.ui.view">
+        <field name="name">education.bus.form</field>
+        <field name="model">education.bus</field>
+        <field name="arch" type="xml">
+            <form string="Bus">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_students" type="object" class="oe_stat_button" icon="fa-graduation-cap">
+                            <field name="student_count" widget="statinfo" string="Students"/>
+                        </button>
+                        <button name="action_view_routes" type="object" class="oe_stat_button" icon="fa-road">
+                            <field name="route_count" widget="statinfo" string="Routes"/>
+                        </button>
+                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                            <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Bus Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="plate_number"/>
+                            <field name="capacity"/>
+                            <field name="driver_id"/>
+                        </group>
+                        <group>
+                            <field name="model"/>
+                            <field name="year"/>
+                            <field name="color"/>
+                            <field name="student_count"/>
+                            <field name="available_seats"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="supervisor_name"/>
+                            <field name="supervisor_phone"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Routes" name="routes">
+                            <field name="route_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="route_type"/>
+                                    <field name="departure_time" widget="float_time"/>
+                                    <field name="arrival_time" widget="float_time"/>
+                                    <field name="active"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Assigned Students" name="students">
+                            <field name="transport_ids">
+                                <list>
+                                    <field name="student_id"/>
+                                    <field name="class_id"/>
+                                    <field name="pickup_method"/>
+                                    <field name="dropoff_method"/>
+                                    <field name="pickup_time" widget="float_time"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Additional notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_education_bus_search" model="ir.ui.view">
+        <field name="name">education.bus.search</field>
+        <field name="model">education.bus</field>
+        <field name="arch" type="xml">
+            <search string="Search Buses">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="plate_number"/>
+                <field name="driver_id"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <group>
+                    <filter string="Driver" name="group_driver" context="{'group_by': 'driver_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_education_bus_kanban" model="ir.ui.view">
+        <field name="name">education.bus.kanban</field>
+        <field name="model">education.bus</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="plate_number"/>
+                <field name="driver_id"/>
+                <field name="capacity"/>
+                <field name="student_count"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_title">
+                                    <strong>[<field name="code"/>] <field name="name"/></strong>
+                                </div>
+                                <div>
+                                    Plate: <field name="plate_number"/>
+                                </div>
+                                <div>
+                                    Driver: <field name="driver_id"/>
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="student_count"/> / <field name="capacity"/> students
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_education_bus" model="ir.actions.act_window">
+        <field name="name">Buses</field>
+        <field name="res_model">education.bus</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- BUS ROUTE VIEWS -->
+    <!-- ========================== -->
+
+    <record id="view_education_bus_route_tree" model="ir.ui.view">
+        <field name="name">education.bus.route.tree</field>
+        <field name="model">education.bus.route</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="bus_id"/>
+                <field name="name"/>
+                <field name="route_type"/>
+                <field name="departure_time" widget="float_time"/>
+                <field name="arrival_time" widget="float_time"/>
+                <field name="driver_id"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_education_bus_route_form" model="ir.ui.view">
+        <field name="name">education.bus.route.form</field>
+        <field name="model">education.bus.route</field>
+        <field name="arch" type="xml">
+            <form string="Bus Route">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_bus" type="object" class="oe_stat_button" icon="fa-bus">
+                            <span class="o_stat_text">Bus</span>
+                        </button>
+                        <button name="action_view_driver" type="object" class="oe_stat_button" icon="fa-id-card">
+                            <span class="o_stat_text">Driver</span>
+                        </button>
+                        <button name="action_view_students" type="object" class="oe_stat_button" icon="fa-graduation-cap">
+                            <field name="student_count" widget="statinfo" string="Students"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="bus_id"/>
+                            <field name="route_type"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="departure_time" widget="float_time"/>
+                            <field name="arrival_time" widget="float_time"/>
+                            <field name="distance_km"/>
+                            <field name="duration_minutes"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="start_location"/>
+                        </group>
+                        <group>
+                            <field name="end_location"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="stops" placeholder="List of stops..."/>
+                    </group>
+                    <group>
+                        <field name="description" placeholder="Route description..."/>
+                    </group>
+                    <group>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_education_bus_route" model="ir.actions.act_window">
+        <field name="name">Routes</field>
+        <field name="res_model">education.bus.route</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- STUDENT TRANSPORT VIEWS -->
+    <!-- ========================== -->
+
+    <record id="view_education_student_transport_tree" model="ir.ui.view">
+        <field name="name">education.student.transport.tree</field>
+        <field name="model">education.student.transport</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="student_id"/>
+                <field name="class_id"/>
+                <field name="pickup_method"/>
+                <field name="dropoff_method"/>
+                <field name="bus_id"/>
+                <field name="driver_id"/>
+                <field name="pickup_time" widget="float_time"/>
+                <field name="transport_fee"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_education_student_transport_form" model="ir.ui.view">
+        <field name="name">education.student.transport.form</field>
+        <field name="model">education.student.transport</field>
+        <field name="arch" type="xml">
+            <form string="Student Transport">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="student_id"/>
+                            <field name="class_id"/>
+                            <field name="parent_id"/>
+                        </group>
+                        <group>
+                            <field name="transport_fee"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Pickup">
+                            <field name="pickup_method"/>
+                            <field name="bus_id" invisible="pickup_method != 'bus'"/>
+                            <field name="pickup_time" widget="float_time"/>
+                            <field name="pickup_address"/>
+                        </group>
+                        <group string="Drop-off">
+                            <field name="dropoff_method"/>
+                            <field name="dropoff_time" widget="float_time"/>
+                            <field name="dropoff_address"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="driver_id" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="notes" placeholder="Additional notes..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_education_student_transport_search" model="ir.ui.view">
+        <field name="name">education.student.transport.search</field>
+        <field name="model">education.student.transport</field>
+        <field name="arch" type="xml">
+            <search string="Search Transport">
+                <field name="student_id"/>
+                <field name="bus_id"/>
+                <field name="driver_id"/>
+                <filter string="By Bus" name="by_bus" domain="[('pickup_method', '=', 'bus')]"/>
+                <filter string="By Parent" name="by_parent" domain="[('pickup_method', '=', 'parent')]"/>
+                <filter string="Self Pickup" name="self" domain="[('pickup_method', '=', 'self')]"/>
+                <separator/>
+                <group>
+                    <filter string="Pickup Method" name="group_pickup" context="{'group_by': 'pickup_method'}"/>
+                    <filter string="Bus" name="group_bus" context="{'group_by': 'bus_id'}"/>
+                    <filter string="Class" name="group_class" context="{'group_by': 'class_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_education_student_transport" model="ir.actions.act_window">
+        <field name="name">Student Transport</field>
+        <field name="res_model">education.student.transport</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

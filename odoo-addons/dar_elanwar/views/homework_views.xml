@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========================== -->
+    <!-- HOMEWORK VIEWS -->
+    <!-- ========================== -->
+
+    <record id="view_education_homework_tree" model="ir.ui.view">
+        <field name="name">education.homework.tree</field>
+        <field name="model">education.homework</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'completed'" decoration-info="state == 'assigned'" decoration-muted="state == 'cancelled'" decoration-danger="due_date &lt; current_date and state == 'assigned'">
+                <field name="name"/>
+                <field name="class_id"/>
+                <field name="subject_id"/>
+                <field name="teacher_id"/>
+                <field name="date"/>
+                <field name="due_date"/>
+                <field name="submission_count"/>
+                <field name="completed_count"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_education_homework_form" model="ir.ui.view">
+        <field name="name">education.homework.form</field>
+        <field name="model">education.homework</field>
+        <field name="arch" type="xml">
+            <form string="Homework">
+                <header>
+                    <button name="action_assign" string="Assign" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_complete" string="Complete" type="object" class="btn-success" invisible="state != 'assigned'"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state not in ['draft', 'assigned']"/>
+                    <button name="action_reset" string="Reset to Draft" type="object" invisible="state not in ['completed', 'cancelled']"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_class" type="object" class="oe_stat_button" icon="fa-users">
+                            <span class="o_stat_text">Class</span>
+                        </button>
+                        <button name="action_view_teacher" type="object" class="oe_stat_button" icon="fa-user">
+                            <span class="o_stat_text">Teacher</span>
+                        </button>
+                        <button name="action_view_submissions" type="object" class="oe_stat_button" icon="fa-file-text">
+                            <field name="submission_count" widget="statinfo" string="Submissions"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Homework Title"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="class_id" readonly="state != 'draft'"/>
+                            <field name="subject_id" readonly="state != 'draft'"/>
+                            <field name="teacher_id" readonly="state != 'draft'"/>
+                            <field name="department_id"/>
+                        </group>
+                        <group>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="due_date" readonly="state != 'draft'"/>
+                            <field name="submission_count"/>
+                            <field name="completed_count"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description" readonly="state not in ['draft', 'assigned']"/>
+                    </group>
+                    <group>
+                        <field name="attachment" filename="attachment_name"/>
+                        <field name="attachment_name" invisible="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Submissions" name="submissions" invisible="state == 'draft'">
+                            <field name="submission_ids">
+                                <list editable="bottom">
+                                    <field name="student_id" readonly="1"/>
+                                    <field name="status"/>
+                                    <field name="submission_date"/>
+                                    <field name="grade"/>
+                                    <field name="notes"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Additional notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_education_homework_search" model="ir.ui.view">
+        <field name="name">education.homework.search</field>
+        <field name="model">education.homework</field>
+        <field name="arch" type="xml">
+            <search string="Search Homework">
+                <field name="name"/>
+                <field name="class_id"/>
+                <field name="subject_id"/>
+                <field name="teacher_id"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Assigned" name="assigned" domain="[('state', '=', 'assigned')]"/>
+                <filter string="Completed" name="completed" domain="[('state', '=', 'completed')]"/>
+                <separator/>
+                <filter string="Due Today" name="due_today" domain="[('due_date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Overdue" name="overdue" domain="[('due_date', '&lt;', context_today().strftime('%Y-%m-%d')), ('state', '=', 'assigned')]"/>
+                <separator/>
+                <group>
+                    <filter string="Class" name="group_class" context="{'group_by': 'class_id'}"/>
+                    <filter string="Subject" name="group_subject" context="{'group_by': 'subject_id'}"/>
+                    <filter string="Teacher" name="group_teacher" context="{'group_by': 'teacher_id'}"/>
+                    <filter string="Due Date" name="group_due" context="{'group_by': 'due_date'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_education_homework_kanban" model="ir.ui.view">
+        <field name="name">education.homework.kanban</field>
+        <field name="model">education.homework</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="class_id"/>
+                <field name="subject_id"/>
+                <field name="due_date"/>
+                <field name="state"/>
+                <field name="submission_count"/>
+                <field name="completed_count"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_title">
+                                    <strong><field name="name"/></strong>
+                                </div>
+                                <div>
+                                    <field name="class_id"/> - <field name="subject_id"/>
+                                </div>
+                                <div>
+                                    Due: <field name="due_date"/>
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="completed_count"/>/<field name="submission_count"/> completed
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_education_homework" model="ir.actions.act_window">
+        <field name="name">Homework</field>
+        <field name="res_model">education.homework</field>
+        <field name="view_mode">list,kanban,form</field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- STUDENT HOMEWORK VIEWS -->
+    <!-- ========================== -->
+
+    <record id="view_education_student_homework_tree" model="ir.ui.view">
+        <field name="name">education.student.homework.tree</field>
+        <field name="model">education.student.homework</field>
+        <field name="arch" type="xml">
+            <list decoration-success="status == 'completed'" decoration-warning="status == 'late'" decoration-danger="status == 'not_done'" decoration-info="status == 'submitted'">
+                <field name="homework_id"/>
+                <field name="student_id"/>
+                <field name="class_id"/>
+                <field name="due_date"/>
+                <field name="status" widget="badge"/>
+                <field name="submission_date"/>
+                <field name="grade"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_education_student_homework_form" model="ir.ui.view">
+        <field name="name">education.student.homework.form</field>
+        <field name="model">education.student.homework</field>
+        <field name="arch" type="xml">
+            <form string="Student Homework">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="homework_id"/>
+                            <field name="student_id"/>
+                            <field name="class_id"/>
+                        </group>
+                        <group>
+                            <field name="due_date"/>
+                            <field name="status"/>
+                            <field name="submission_date"/>
+                            <field name="grade"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="attachment" filename="attachment_name"/>
+                        <field name="attachment_name" invisible="1"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="notes" placeholder="Student notes..."/>
+                        </group>
+                        <group>
+                            <field name="teacher_notes" placeholder="Teacher notes..."/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_education_student_homework_search" model="ir.ui.view">
+        <field name="name">education.student.homework.search</field>
+        <field name="model">education.student.homework</field>
+        <field name="arch" type="xml">
+            <search string="Search Submissions">
+                <field name="student_id"/>
+                <field name="homework_id"/>
+                <filter string="Pending" name="pending" domain="[('status', '=', 'pending')]"/>
+                <filter string="Submitted" name="submitted" domain="[('status', '=', 'submitted')]"/>
+                <filter string="Completed" name="completed" domain="[('status', '=', 'completed')]"/>
+                <filter string="Late" name="late" domain="[('status', '=', 'late')]"/>
+                <filter string="Not Done" name="not_done" domain="[('status', '=', 'not_done')]"/>
+                <separator/>
+                <group>
+                    <filter string="Student" name="group_student" context="{'group_by': 'student_id'}"/>
+                    <filter string="Homework" name="group_homework" context="{'group_by': 'homework_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="Class" name="group_class" context="{'group_by': 'class_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_education_student_homework" model="ir.actions.act_window">
+        <field name="name">Student Submissions</field>
+        <field name="res_model">education.student.homework</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========================== -->
+    <!-- DEPARTMENT VIEWS -->
+    <!-- ========================== -->
+
+    <!-- Department Tree View -->
+    <record id="view_education_department_tree" model="ir.ui.view">
+        <field name="name">education.department.tree</field>
+        <field name="model">education.department</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="type"/>
+                <field name="level_count"/>
+                <field name="class_count"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Department Form View -->
+    <record id="view_education_department_form" model="ir.ui.view">
+        <field name="name">education.department.form</field>
+        <field name="model">education.department</field>
+        <field name="arch" type="xml">
+            <form string="Department">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_levels" type="object" class="oe_stat_button" icon="fa-bars">
+                            <field name="level_count" widget="statinfo" string="Levels"/>
+                        </button>
+                        <button name="action_view_classes" type="object" class="oe_stat_button" icon="fa-users">
+                            <field name="class_count" widget="statinfo" string="Classes"/>
+                        </button>
+                        <button name="action_view_subjects" type="object" class="oe_stat_button" icon="fa-book">
+                            <field name="subject_count" widget="statinfo" string="Subjects"/>
+                        </button>
+                        <button name="action_view_students" type="object" class="oe_stat_button" icon="fa-graduation-cap">
+                            <field name="student_count" widget="statinfo" string="Students"/>
+                        </button>
+                        <button name="action_view_employees" type="object" class="oe_stat_button" icon="fa-id-badge">
+                            <field name="employee_count" widget="statinfo" string="Employees"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Department Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="type"/>
+                            <field name="level_count"/>
+                            <field name="class_count"/>
+                            <field name="subject_count"/>
+                        </group>
+                        <group>
+                            <field name="branch_id"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Department Search View -->
+    <record id="view_education_department_search" model="ir.ui.view">
+        <field name="name">education.department.search</field>
+        <field name="model">education.department</field>
+        <field name="arch" type="xml">
+            <search string="Search Departments">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="type"/>
+                <filter string="Nursery" name="nursery" domain="[('type', '=', 'nursery')]"/>
+                <filter string="Quran" name="quran" domain="[('type', '=', 'quran')]"/>
+                <filter string="Tutoring" name="tutoring" domain="[('type', '=', 'tutoring')]"/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Type" name="group_type" context="{'group_by': 'type'}"/>
+                    <filter string="Branch" name="group_branch" context="{'group_by': 'branch_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Department Action -->
+    <record id="action_education_department" model="ir.actions.act_window">
+        <field name="name">Departments</field>
+        <field name="res_model">education.department</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first department!
+            </p>
+            <p>Departments represent different programs like Nursery, Quran, Tutoring, etc.</p>
+        </field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- LEVEL VIEWS -->
+    <!-- ========================== -->
+
+    <!-- Level Tree View -->
+    <record id="view_education_level_tree" model="ir.ui.view">
+        <field name="name">education.level.tree</field>
+        <field name="model">education.level</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="class_count"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Level Form View -->
+    <record id="view_education_level_form" model="ir.ui.view">
+        <field name="name">education.level.form</field>
+        <field name="model">education.level</field>
+        <field name="arch" type="xml">
+            <form string="Level">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_classes" type="object" class="oe_stat_button" icon="fa-users">
+                            <field name="class_count" widget="statinfo" string="Classes"/>
+                        </button>
+                        <button name="action_view_students" type="object" class="oe_stat_button" icon="fa-graduation-cap">
+                            <field name="student_count" widget="statinfo" string="Students"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Level Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="department_id"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Level Search View -->
+    <record id="view_education_level_search" model="ir.ui.view">
+        <field name="name">education.level.search</field>
+        <field name="model">education.level</field>
+        <field name="arch" type="xml">
+            <search string="Search Levels">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="department_id"/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Level Action -->
+    <record id="action_education_level" model="ir.actions.act_window">
+        <field name="name">Levels</field>
+        <field name="res_model">education.level</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create educational levels!
+            </p>
+        </field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- SUBJECT VIEWS -->
+    <!-- ========================== -->
+
+    <!-- Subject Tree View -->
+    <record id="view_education_subject_tree" model="ir.ui.view">
+        <field name="name">education.subject.tree</field>
+        <field name="model">education.subject</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Subject Form View -->
+    <record id="view_education_subject_form" model="ir.ui.view">
+        <field name="name">education.subject.form</field>
+        <field name="model">education.subject</field>
+        <field name="arch" type="xml">
+            <form string="Subject">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_homework" type="object" class="oe_stat_button" icon="fa-book">
+                            <field name="homework_count" widget="statinfo" string="Homework"/>
+                        </button>
+                        <button name="action_view_evaluations" type="object" class="oe_stat_button" icon="fa-star">
+                            <field name="evaluation_count" widget="statinfo" string="Evaluations"/>
+                        </button>
+                        <button name="action_view_templates" type="object" class="oe_stat_button" icon="fa-file-text-o">
+                            <field name="template_count" widget="statinfo" string="Templates"/>
+                        </button>
+                        <button name="action_view_students" type="object" class="oe_stat_button" icon="fa-graduation-cap">
+                            <field name="student_count" widget="statinfo" string="Students"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Subject Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="department_id"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Subject Search View -->
+    <record id="view_education_subject_search" model="ir.ui.view">
+        <field name="name">education.subject.search</field>
+        <field name="model">education.subject</field>
+        <field name="arch" type="xml">
+            <search string="Search Subjects">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="department_id"/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Subject Action -->
+    <record id="action_education_subject" model="ir.actions.act_window">
+        <field name="name">Subjects</field>
+        <field name="res_model">education.subject</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create subjects!
+            </p>
+        </field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- SCHEDULE VIEWS -->
+    <!-- ========================== -->
+
+    <!-- Schedule Tree View -->
+    <record id="view_education_schedule_tree" model="ir.ui.view">
+        <field name="name">education.schedule.tree</field>
+        <field name="model">education.schedule</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="time_from" widget="float_time"/>
+                <field name="time_to" widget="float_time"/>
+                <field name="display_time"/>
+                <field name="period"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Schedule Form View -->
+    <record id="view_education_schedule_form" model="ir.ui.view">
+        <field name="name">education.schedule.form</field>
+        <field name="model">education.schedule</field>
+        <field name="arch" type="xml">
+            <form string="Schedule">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Schedule Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="time_from" widget="float_time"/>
+                            <field name="time_to" widget="float_time"/>
+                        </group>
+                        <group>
+                            <field name="period"/>
+                            <field name="display_time"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Schedule Search View -->
+    <record id="view_education_schedule_search" model="ir.ui.view">
+        <field name="name">education.schedule.search</field>
+        <field name="model">education.schedule</field>
+        <field name="arch" type="xml">
+            <search string="Search Schedules">
+                <field name="name"/>
+                <field name="period"/>
+                <filter string="Morning" name="morning" domain="[('period', '=', 'morning')]"/>
+                <filter string="Afternoon" name="afternoon" domain="[('period', '=', 'afternoon')]"/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Period" name="group_period" context="{'group_by': 'period'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Schedule Action -->
+    <record id="action_education_schedule" model="ir.actions.act_window">
+        <field name="name">Schedules</field>
+        <field name="res_model">education.schedule</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create class schedules!
+            </p>
+        </field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- CLASS VIEWS -->
+    <!-- ========================== -->
+
+    <!-- Class Tree View -->
+    <record id="view_education_class_tree" model="ir.ui.view">
+        <field name="name">education.class.tree</field>
+        <field name="model">education.class</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="level_id"/>
+                <field name="schedule_id"/>
+                <field name="capacity"/>
+                <field name="student_count"/>
+                <field name="available_seats"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Class Form View -->
+    <record id="view_education_class_form" model="ir.ui.view">
+        <field name="name">education.class.form</field>
+        <field name="model">education.class</field>
+        <field name="arch" type="xml">
+            <form string="Class">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_students" type="object" class="oe_stat_button" icon="fa-graduation-cap">
+                            <field name="student_count" widget="statinfo" string="Students"/>
+                        </button>
+                        <button name="action_view_homework" type="object" class="oe_stat_button" icon="fa-book">
+                            <field name="homework_count" widget="statinfo" string="Homework"/>
+                        </button>
+                        <button name="action_view_attendance" type="object" class="oe_stat_button" icon="fa-calendar-check-o">
+                            <field name="attendance_count" widget="statinfo" string="Attendance"/>
+                        </button>
+                        <button name="action_view_evaluations" type="object" class="oe_stat_button" icon="fa-star">
+                            <field name="evaluation_count" widget="statinfo" string="Evaluations"/>
+                        </button>
+                        <button name="action_view_subscriptions" type="object" class="oe_stat_button" icon="fa-credit-card">
+                            <field name="subscription_count" widget="statinfo" string="Subscriptions"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Class Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="department_id"/>
+                            <field name="level_id"/>
+                        </group>
+                        <group>
+                            <field name="schedule_id"/>
+                            <field name="academic_year_id"/>
+                            <field name="teacher_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="capacity"/>
+                            <field name="available_seats"/>
+                            <field name="student_count"/>
+                        </group>
+                        <group>
+                            <field name="room"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Class Search View -->
+    <record id="view_education_class_search" model="ir.ui.view">
+        <field name="name">education.class.search</field>
+        <field name="model">education.class</field>
+        <field name="arch" type="xml">
+            <search string="Search Classes">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="department_id"/>
+                <field name="level_id"/>
+                <field name="schedule_id"/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
+                    <filter string="Level" name="group_level" context="{'group_by': 'level_id'}"/>
+                    <filter string="Schedule" name="group_schedule" context="{'group_by': 'schedule_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Class Action -->
+    <record id="action_education_class" model="ir.actions.act_window">
+        <field name="name">Classes</field>
+        <field name="res_model">education.class</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first class!
+            </p>
+        </field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- GRADE SCALE VIEWS -->
+    <!-- ========================== -->
+
+    <!-- Grade Scale Tree View -->
+    <record id="view_education_grade_scale_tree" model="ir.ui.view">
+        <field name="name">education.grade.scale.tree</field>
+        <field name="model">education.grade.scale</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="value_count"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Grade Scale Form View -->
+    <record id="view_education_grade_scale_form" model="ir.ui.view">
+        <field name="name">education.grade.scale.form</field>
+        <field name="model">education.grade.scale</field>
+        <field name="arch" type="xml">
+            <form string="Grade Scale">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Scale Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                    <notebook>
+                        <page string="Values" name="values">
+                            <field name="value_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="numeric_value"/>
+                                    <field name="description"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Grade Scale Action -->
+    <record id="action_education_grade_scale" model="ir.actions.act_window">
+        <field name="name">Grade Scales</field>
+        <field name="res_model">education.grade.scale</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create grade scales for evaluations!
+            </p>
+            <p>Examples: Excellent/Very Good/Good/Acceptable/Poor</p>
+        </field>
+    </record>
+
+    <!-- Placeholder action for student (used in class form stat button) -->
+    <record id="action_education_student" model="ir.actions.act_window">
+        <field name="name">Students</field>
+        <field name="res_model">education.student</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>
