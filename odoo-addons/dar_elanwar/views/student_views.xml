@@ -233,6 +233,23 @@
                         <button name="action_view_notes" type="object" class="oe_stat_button" icon="fa-sticky-note">
                             <field name="note_count" widget="statinfo" string="Notes"/>
                         </button>
+                        <button name="action_view_balance" type="object" class="oe_stat_button" icon="fa-money">
+                            <div class="o_stat_info">
+                                <field name="balance_due" widget="monetary"/>
+                                <span class="o_stat_text">Balance Due</span>
+                            </div>
+                        </button>
+                        <button name="action_view_account_statement" type="object" class="oe_stat_button" icon="fa-book">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Account Statement</span>
+                            </div>
+                        </button>
+                        <button name="action_view_installments" type="object" class="oe_stat_button" icon="fa-calendar">
+                            <field name="installment_count" widget="statinfo" string="Installments"/>
+                        </button>
+                        <button name="action_view_goals" type="object" class="oe_stat_button" icon="fa-trophy">
+                            <field name="goal_count" widget="statinfo" string="Goals"/>
+                        </button>
                     </div>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                     <field name="photo" widget="image" class="oe_avatar"/>
@@ -252,12 +269,17 @@
                             <field name="age"/>
                             <field name="gender"/>
                             <field name="nationality"/>
+                            <field name="national_id"/>
+                            <field name="religion"/>
+                            <field name="birth_place"/>
+                            <field name="birth_order"/>
                         </group>
                         <group>
                             <field name="department_id"/>
                             <field name="class_id"/>
                             <field name="period"/>
                             <field name="branch_id"/>
+                            <field name="admission_time"/>
                         </group>
                     </group>
                     <notebook>
@@ -335,6 +357,33 @@
                             <group>
                                 <field name="notes" string="General Notes"/>
                             </group>
+                        </page>
+                        <page string="Study Plans" name="study_plans">
+                            <field name="study_plan_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="academic_year_id"/>
+                                    <field name="subject_id"/>
+                                    <field name="teacher_id"/>
+                                    <field name="schedule"/>
+                                    <field name="notes"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Financial Plans" name="financial_plans">
+                            <field name="financial_plan_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="subscription_id"/>
+                                    <field name="total_amount"/>
+                                    <field name="paid_amount"/>
+                                    <field name="remaining_amount"/>
+                                    <field name="installment_count"/>
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
+                                    <field name="status"/>
+                                </list>
+                            </field>
                         </page>
                         <page string="Archive History" name="archive_history" invisible="not archive_ids">
                             <field name="archive_ids">

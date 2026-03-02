@@ -251,6 +251,16 @@ class EducationStudent(models.Model):
         'student_id',
         string='Transport',
     )
+    study_plan_ids = fields.One2many(
+        'education.study.plan',
+        'student_id',
+        string='Study Plans',
+    )
+    financial_plan_ids = fields.One2many(
+        'education.financial.plan',
+        'student_id',
+        string='Financial Plans',
+    )
 
     # Computed counts for stat buttons (original)
     subscription_count = fields.Integer(
@@ -296,6 +306,15 @@ class EducationStudent(models.Model):
     note_count = fields.Integer(
         string='Notes',
         compute='_compute_stat_counts',
+    )
+
+    study_plan_count = fields.Integer(
+        compute='_compute_stat_counts',
+        string='Study Plans',
+    )
+    financial_plan_count = fields.Integer(
+        compute='_compute_stat_counts',
+        string='Financial Plans',
     )
 
     # Computed fields from new enhancements
@@ -366,6 +385,10 @@ class EducationStudent(models.Model):
             record.receipt_count = self.env['education.payment.receipt'].search_count([
                 ('student_id', '=', record.id)
             ])
+
+            # Study plans and financial plans
+            record.study_plan_count = len(record.study_plan_ids)
+            record.financial_plan_count = len(record.financial_plan_ids)
 
     @api.depends('subscription_ids.total_amount', 'subscription_ids.status')
     def _compute_balance_due(self):

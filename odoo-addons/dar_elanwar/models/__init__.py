@@ -79,7 +79,11 @@ from . import education_email_log
 # Phase 12: Homework
 from . import education_homework
 
-# Phase 13: New Modules (PRD Enhancements)
+# Phase 13: Study & Financial Plans
+from . import education_study_plan
+from . import education_financial_plan
+
+# Phase 14: New Modules (PRD Enhancements)
 from . import education_discount
 from . import education_admission
 from . import education_kids_area
