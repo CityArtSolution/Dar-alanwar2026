@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========================== -->
+    <!-- GUARDIAN VIEWS -->
+    <!-- ========================== -->
+
+    <!-- Guardian Tree View -->
+    <record id="view_guardian_tree" model="ir.ui.view">
+        <field name="name">res.partner.guardian.tree</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="guardian_relation"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <field name="function"/>
+                <field name="student_count"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Guardian Form View -->
+    <record id="view_guardian_form" model="ir.ui.view">
+        <field name="name">res.partner.guardian.form</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <form string="Guardian">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_students" type="object" class="oe_stat_button" icon="fa-graduation-cap">
+                            <field name="student_count" widget="statinfo" string="Children"/>
+                        </button>
+                        <button name="action_view_subscriptions" type="object" class="oe_stat_button" icon="fa-credit-card">
+                            <field name="subscription_count" widget="statinfo" string="Subscriptions"/>
+                        </button>
+                        <button name="action_view_payments" type="object" class="oe_stat_button" icon="fa-money">
+                            <field name="payment_count" widget="statinfo" string="Payments"/>
+                        </button>
+                        <button name="action_view_guardian_messages" type="object" class="oe_stat_button" icon="fa-envelope">
+                            <field name="guardian_message_count" widget="statinfo" string="Messages"/>
+                        </button>
+                        <button name="action_view_transport" type="object" class="oe_stat_button" icon="fa-bus">
+                            <field name="transport_count" widget="statinfo" string="Transport"/>
+                        </button>
+                        <button name="action_view_children_balance" type="object" class="oe_stat_button" icon="fa-money">
+                            <div class="o_stat_info">
+                                <field name="children_balance_due" widget="monetary"/>
+                                <span class="o_stat_text">Balance Due</span>
+                            </div>
+                        </button>
+                        <button name="action_view_account_statement" type="object" class="oe_stat_button" icon="fa-book">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Account Statement</span>
+                            </div>
+                        </button>
+                        <button name="action_view_children_installments" type="object" class="oe_stat_button" icon="fa-calendar">
+                            <field name="children_installment_count" widget="statinfo" string="Installments"/>
+                        </button>
+                        <button name="action_view_children_invoices" type="object" class="oe_stat_button" icon="fa-file-text-o">
+                            <field name="children_invoice_count" widget="statinfo" string="Invoices"/>
+                        </button>
+                        <button name="action_view_children_attendance" type="object" class="oe_stat_button" icon="fa-check-square-o">
+                            <div class="o_stat_info">
+                                <field name="children_attendance_pct" widget="float" digits="[3,1]"/>
+                                <span class="o_stat_text">Attendance %</span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="image_1920" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Full Name"/>
+                        </h1>
+                    </div>
+                    <field name="is_guardian" invisible="1"/>
+                    <group>
+                        <group string="Personal Information">
+                            <field name="guardian_relation"/>
+                            <field name="parent_social_status"/>
+                            <field name="id_number"/>
+                            <field name="country_id" string="Nationality"/>
+                            <field name="education_level"/>
+                        </group>
+                        <group string="Contact">
+                            <field name="phone"/>
+                            <field name="mobile"/>
+                            <field name="email"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Work">
+                            <field name="function" string="Job / Occupation"/>
+                            <field name="workplace"/>
+                            <field name="job_number"/>
+                        </group>
+                        <group string="Location">
+                            <field name="guardian_city_id"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="street" string="Address"/>
+                    </group>
+                    <notebook>
+                        <page string="Mother Information" name="mother_info">
+                            <group>
+                                <group>
+                                    <field name="mother_name"/>
+                                    <field name="mother_phone"/>
+                                </group>
+                                <group>
+                                    <field name="mother_national_id"/>
+                                    <field name="mother_education"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Children" name="children">
+                            <group string="As Father">
+                                <field name="father_student_ids" nolabel="1">
+                                    <list>
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                        <field name="class_id"/>
+                                        <field name="state"/>
+                                    </list>
+                                </field>
+                            </group>
+                            <group string="As Mother">
+                                <field name="mother_student_ids" nolabel="1">
+                                    <list>
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                        <field name="class_id"/>
+                                        <field name="state"/>
+                                    </list>
+                                </field>
+                            </group>
+                        </page>
+                        <page string="Children Financial Plans" name="children_financial_plans">
+                            <p class="text-muted">
+                                Financial plans for all linked students.
+                                Use the smart buttons above for detailed views.
+                            </p>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <group>
+                                <field name="comment" string="Notes" nolabel="1" placeholder="Internal notes..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Guardian Search View -->
+    <record id="view_guardian_search" model="ir.ui.view">
+        <field name="name">res.partner.guardian.search</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <search string="Search Guardians">
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <filter string="Fathers" name="fathers" domain="[('guardian_relation', '=', 'father')]"/>
+                <filter string="Mothers" name="mothers" domain="[('guardian_relation', '=', 'mother')]"/>
+                <filter string="Guardians" name="guardians" domain="[('guardian_relation', '=', 'guardian')]"/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Relation" name="group_relation" context="{'group_by': 'guardian_relation'}"/>
+                    <filter string="City" name="group_city" context="{'group_by': 'guardian_city_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Guardian Action -->
+    <record id="action_education_guardian" model="ir.actions.act_window">
+        <field name="name">Guardians</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_guardian', '=', True)]</field>
+        <field name="context">{'default_is_guardian': True}</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_guardian_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_guardian_form')})]"/>
+        <field name="search_view_id" ref="view_guardian_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add parent/guardian information
+            </p>
+        </field>
+    </record>
+
+</odoo>

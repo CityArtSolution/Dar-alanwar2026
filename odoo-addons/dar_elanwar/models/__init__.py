@@ -19,7 +19,7 @@ from . import education_class
 from . import education_grade_scale
 
 # Phase 3: Student Management
-from . import education_parent
+from . import res_partner
 from . import education_student
 from . import education_authorized_pickup
 from . import education_sibling

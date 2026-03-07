@@ -97,16 +97,18 @@ class EducationAdmissionApplication(models.Model):
         """Create student record from application."""
         self.ensure_one()
         # Find or create parent
-        parent = self.env['education.parent'].search([
-            ('id_number', '=', self.parent_national_id)
+        parent = self.env['res.partner'].search([
+            ('is_guardian', '=', True),
+            ('id_number', '=', self.parent_national_id),
         ], limit=1)
         if not parent and self.parent_national_id:
-            parent = self.env['education.parent'].create({
+            parent = self.env['res.partner'].create({
                 'name': self.parent_name,
                 'phone': self.parent_phone,
                 'email': self.parent_email,
                 'id_number': self.parent_national_id,
-                'relation': 'father',
+                'is_guardian': True,
+                'guardian_relation': 'father',
             })
 
         student = self.env['education.student'].create({

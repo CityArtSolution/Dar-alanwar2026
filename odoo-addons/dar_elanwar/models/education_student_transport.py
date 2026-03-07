@@ -77,7 +77,7 @@ class EducationStudentTransport(models.Model):
 
     # Related fields
     parent_id = fields.Many2one(
-        'education.parent',
+        'res.partner',
         string='Parent',
         related='student_id.father_id',
     )

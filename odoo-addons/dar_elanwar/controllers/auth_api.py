@@ -32,7 +32,8 @@ class AuthApiController(ApiBaseController):
         elif phone:
             domain = ['|', ('phone', '=', phone), ('mobile', '=', phone)]
 
-        parent = request.env['education.parent'].sudo().search(domain, limit=1)
+        parent = request.env['res.partner'].sudo().search(
+            [('is_guardian', '=', True)] + domain, limit=1)
         if not parent:
             return error_response('Invalid credentials', 401)
 
@@ -59,7 +60,7 @@ class AuthApiController(ApiBaseController):
                 'name': parent.name,
                 'email': parent.email,
                 'phone': parent.phone,
-                'relation': parent.relation,
+                'relation': parent.guardian_relation,
             },
             'children': [self._serialize_student(c) for c in children],
         })
@@ -88,9 +89,9 @@ class AuthApiController(ApiBaseController):
             'email': parent.email,
             'phone': parent.phone,
             'mobile': parent.mobile,
-            'relation': parent.relation,
-            'nationality': parent.nationality.name if parent.nationality else None,
-            'job': parent.job,
+            'relation': parent.guardian_relation,
+            'nationality': parent.country_id.name if parent.country_id else None,
+            'job': parent.function,
             'workplace': parent.workplace,
             'children_count': parent.children_count,
             'children_balance_due': parent.children_balance_due,

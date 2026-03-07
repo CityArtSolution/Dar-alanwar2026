@@ -31,8 +31,8 @@ class EducationCity(models.Model):
         string='Students',
     )
     parent_ids = fields.One2many(
-        'education.parent',
-        'city_id',
+        'res.partner',
+        'guardian_city_id',
         string='Parents',
     )
 
@@ -67,11 +67,11 @@ class EducationCity(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Parents',
-            'res_model': 'education.parent',
+            'name': 'Guardians',
+            'res_model': 'res.partner',
             'view_mode': 'list,form',
-            'domain': [('city_id', '=', self.id)],
-            'context': {'default_city_id': self.id},
+            'domain': [('is_guardian', '=', True), ('guardian_city_id', '=', self.id)],
+            'context': {'default_guardian_city_id': self.id, 'default_is_guardian': True},
         }
 
     _sql_constraints = [

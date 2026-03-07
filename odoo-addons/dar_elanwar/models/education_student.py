@@ -108,14 +108,14 @@ class EducationStudent(models.Model):
 
     # Parents
     father_id = fields.Many2one(
-        'education.parent',
+        'res.partner',
         string='Father',
-        domain="[('relation', '=', 'father')]",
+        domain="[('is_guardian', '=', True), ('guardian_relation', '=', 'father')]",
     )
     mother_id = fields.Many2one(
-        'education.parent',
+        'res.partner',
         string='Mother',
-        domain="[('relation', '=', 'mother')]",
+        domain="[('is_guardian', '=', True), ('guardian_relation', '=', 'mother')]",
     )
 
     # Academic Information
@@ -440,11 +440,12 @@ class EducationStudent(models.Model):
     def _onchange_national_id(self):
         """Auto-detect guardian by national ID."""
         if self.national_id:
-            parent = self.env['education.parent'].search(
-                [('id_number', '=', self.national_id)], limit=1)
-            if parent and not self.father_id and parent.relation == 'father':
+            parent = self.env['res.partner'].search(
+                [('is_guardian', '=', True),
+                 ('id_number', '=', self.national_id)], limit=1)
+            if parent and not self.father_id and parent.guardian_relation == 'father':
                 self.father_id = parent.id
-            elif parent and not self.mother_id and parent.relation == 'mother':
+            elif parent and not self.mother_id and parent.guardian_relation == 'mother':
                 self.mother_id = parent.id
 
     def action_pending(self):
@@ -609,7 +610,7 @@ class EducationStudent(models.Model):
             return {
                 'type': 'ir.actions.act_window',
                 'name': 'Father',
-                'res_model': 'education.parent',
+                'res_model': 'res.partner',
                 'view_mode': 'form',
                 'res_id': self.father_id.id,
             }
@@ -621,7 +622,7 @@ class EducationStudent(models.Model):
             return {
                 'type': 'ir.actions.act_window',
                 'name': 'Mother',
-                'res_model': 'education.parent',
+                'res_model': 'res.partner',
                 'view_mode': 'form',
                 'res_id': self.mother_id.id,
             }

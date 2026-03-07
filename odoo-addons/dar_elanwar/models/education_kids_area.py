@@ -85,7 +85,8 @@ class EducationKidsAreaBooking(models.Model):
                                required=True)
     student_id = fields.Many2one('education.student', string='Student',
                                   required=True)
-    parent_id = fields.Many2one('education.parent', string='Parent')
+    parent_id = fields.Many2one('res.partner', string='Parent',
+                                domain=[('is_guardian', '=', True)])
     booking_date = fields.Datetime(string='Booking Date',
                                     default=fields.Datetime.now)
     state = fields.Selection([

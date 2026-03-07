@@ -96,16 +96,16 @@
         <field name="binding_type">report</field>
     </record>
 
-    <!-- 10. Parent Directory Report (multi) -->
+    <!-- 10. Guardian Directory Report (multi) -->
     <record id="action_report_parent_directory" model="ir.actions.report">
-        <field name="name">Parent Directory</field>
-        <field name="model">education.parent</field>
+        <field name="name">Guardian Directory</field>
+        <field name="model">res.partner</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">dar_elanwar.report_parent_directory_document</field>
-        <field name="print_report_name">'Parent Directory'</field>
+        <field name="print_report_name">'Guardian Directory'</field>
         <field name="multi" eval="True"/>
         <field name="paperformat_id" ref="paperformat_dar_elanwar"/>
-        <field name="binding_model_id" ref="model_education_parent"/>
+        <field name="binding_model_id" ref="model_res_partner"/>
         <field name="binding_type">report</field>
     </record>
 

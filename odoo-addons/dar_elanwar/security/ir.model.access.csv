@@ -35,9 +35,6 @@ access_education_grade_scale_user,education.grade.scale.user,model_education_gra
 access_education_grade_scale_admin,education.grade.scale.admin,model_education_grade_scale,group_education_admin,1,1,1,1
 access_education_grade_scale_value_user,education.grade.scale.value.user,model_education_grade_scale_value,group_education_user,1,0,0,0
 access_education_grade_scale_value_admin,education.grade.scale.value.admin,model_education_grade_scale_value,group_education_admin,1,1,1,1
-access_education_parent_user,education.parent.user,model_education_parent,group_education_user,1,0,0,0
-access_education_parent_secretary,education.parent.secretary,model_education_parent,group_education_secretary,1,1,1,0
-access_education_parent_admin,education.parent.admin,model_education_parent,group_education_admin,1,1,1,1
 access_education_student_user,education.student.user,model_education_student,group_education_user,1,0,0,0
 access_education_student_teacher,education.student.teacher,model_education_student,group_education_teacher,1,1,0,0
 access_education_student_secretary,education.student.secretary,model_education_student,group_education_secretary,1,1,1,0

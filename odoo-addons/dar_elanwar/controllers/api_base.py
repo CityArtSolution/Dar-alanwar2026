@@ -70,9 +70,9 @@ def jwt_required(func):
             return error_response('Invalid or expired token', 401,
                                   'TOKEN_INVALID')
 
-        parent = request.env['education.parent'].sudo().browse(
+        parent = request.env['res.partner'].sudo().browse(
             payload.get('parent_id'))
-        if not parent.exists():
+        if not parent.exists() or not parent.is_guardian:
             return error_response('Parent not found', 401, 'PARENT_NOT_FOUND')
 
         request.parent = parent
