@@ -46,6 +46,9 @@ class ResPartner(models.Model):
         selection=SOCIAL_STATUS,
         string='Social Status',
     )
+    guardian_mobile = fields.Char(
+        string='Mobile',
+    )
     id_number = fields.Char(
         string='National ID',
     )
