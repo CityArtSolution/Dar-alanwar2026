@@ -87,7 +87,7 @@
                         </group>
                         <group string="Contact">
                             <field name="phone"/>
-                                        <field name="email"/>
+                            <field name="email"/>
                         </group>
                     </group>
                     <group>

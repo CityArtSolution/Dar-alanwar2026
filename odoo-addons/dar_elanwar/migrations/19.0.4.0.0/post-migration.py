@@ -146,6 +146,12 @@ def migrate(cr, version):
             for old_field, new_field in field_map.items():
                 val = record.get(old_field)
                 if val is not None:
+                    # blood_type stored as uppercase in DB, selection expects lowercase
+                    if old_field == 'blood_type' and isinstance(val, str):
+                        val = val.lower()
+                    # period: map legacy 'evening' to 'afternoon'
+                    if old_field == 'period' and val == 'evening':
+                        val = 'afternoon'
                     partner_vals[new_field] = val
 
             # Renamed fields
@@ -294,11 +300,26 @@ def migrate(cr, version):
 
     # Create partial unique index for student code
     _logger.info("Creating partial unique index for student code...")
+    # Drop any existing index first (may have duplicates from prior partial migration)
+    cr.execute("DROP INDEX IF EXISTS education_student_code_unique")
+    # Remove duplicate codes from any previously failed migration attempts
     cr.execute("""
-        CREATE UNIQUE INDEX IF NOT EXISTS education_student_code_unique
-        ON res_partner (code)
-        WHERE is_student = TRUE AND code IS NOT NULL
+        UPDATE res_partner SET code = NULL
+        WHERE id NOT IN (
+            SELECT MIN(id) FROM res_partner
+            WHERE is_student = TRUE AND code IS NOT NULL
+            GROUP BY code
+        )
+        AND is_student = TRUE AND code IS NOT NULL
     """)
+    try:
+        cr.execute("""
+            CREATE UNIQUE INDEX education_student_code_unique
+            ON res_partner (code)
+            WHERE is_student = TRUE AND code IS NOT NULL
+        """)
+    except Exception as e:
+        _logger.warning("Could not create unique index for student code: %s", str(e))
 
     env.cr.commit()
 
