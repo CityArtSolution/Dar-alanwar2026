@@ -124,7 +124,7 @@
                                         <field name="code"/>
                                         <field name="name"/>
                                         <field name="class_id"/>
-                                        <field name="state"/>
+                                        <field name="student_state"/>
                                     </list>
                                 </field>
                             </group>
@@ -134,7 +134,7 @@
                                         <field name="code"/>
                                         <field name="name"/>
                                         <field name="class_id"/>
-                                        <field name="state"/>
+                                        <field name="student_state"/>
                                     </list>
                                 </field>
                             </group>
