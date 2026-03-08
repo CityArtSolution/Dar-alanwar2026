@@ -8,7 +8,6 @@ _logger = logging.getLogger(__name__)
 FIELD_MAP = {
     'name': 'name',
     'phone': 'phone',
-    'mobile': 'mobile',
     'email': 'email',
     'job': 'function',
     'workplace': 'workplace',
@@ -106,6 +105,21 @@ def migrate(cr, version):
     if not old_to_new:
         _logger.info("No records migrated, skipping FK updates")
         return
+
+    # Drop FK constraints that point to education_parent before updating
+    if _table_exists(cr, 'education_student'):
+        for constraint in ['education_student_father_id_fkey',
+                           'education_student_mother_id_fkey']:
+            cr.execute("""
+                SELECT EXISTS (
+                    SELECT 1 FROM information_schema.table_constraints
+                    WHERE constraint_name = %s
+                    AND table_name = 'education_student'
+                )
+            """, (constraint,))
+            if cr.fetchone()[0]:
+                cr.execute("ALTER TABLE education_student DROP CONSTRAINT %s" % constraint)
+                _logger.info("Dropped FK constraint %s", constraint)
 
     # Update FK references in education_student (father_id, mother_id)
     if _table_exists(cr, 'education_student'):
