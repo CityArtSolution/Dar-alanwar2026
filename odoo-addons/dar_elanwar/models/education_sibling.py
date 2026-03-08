@@ -11,10 +11,11 @@ class EducationSibling(models.Model):
     _order = 'student_id, birthdate'
 
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         required=True,
         ondelete='cascade',
+        domain=[('is_student', '=', True)],
     )
     name = fields.Char(
         string='Sibling Name',
@@ -37,9 +38,10 @@ class EducationSibling(models.Model):
         default=False,
     )
     enrolled_student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Enrolled As',
         help='Link to student record if sibling is also enrolled',
+        domain=[('is_student', '=', True)],
     )
     notes = fields.Text(
         string='Notes',

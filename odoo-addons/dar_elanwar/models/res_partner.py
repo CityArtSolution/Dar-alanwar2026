@@ -46,9 +46,6 @@ class ResPartner(models.Model):
         selection=SOCIAL_STATUS,
         string='Social Status',
     )
-    guardian_mobile = fields.Char(
-        string='Mobile',
-    )
     id_number = fields.Char(
         string='National ID',
     )
@@ -82,16 +79,18 @@ class ResPartner(models.Model):
         string='Mother Education Level',
     )
 
-    # Related children
+    # Related children (now self-referential on res.partner)
     father_student_ids = fields.One2many(
-        'education.student',
+        'res.partner',
         'father_id',
         string='Children (as Father)',
+        domain=[('is_student', '=', True)],
     )
     mother_student_ids = fields.One2many(
-        'education.student',
+        'res.partner',
         'mother_id',
         string='Children (as Mother)',
+        domain=[('is_student', '=', True)],
     )
 
     # Computed counts (original)
@@ -244,9 +243,9 @@ class ResPartner(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Children',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'list,kanban,form',
-            'domain': [('id', 'in', self._get_student_ids())],
+            'domain': [('id', 'in', self._get_student_ids()), ('is_student', '=', True)],
         }
 
     def action_view_subscriptions(self):

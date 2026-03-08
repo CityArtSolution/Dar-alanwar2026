@@ -107,7 +107,7 @@ class EducationBus(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Students',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'list,kanban,form',
             'domain': [('id', 'in', student_ids)],
         }

@@ -24,7 +24,8 @@ class ReportWizard(models.TransientModel):
                                 domain="[('department_id', '=', department_id)]")
     academic_year_id = fields.Many2one('education.academic.year',
                                         string='Academic Year')
-    student_id = fields.Many2one('education.student', string='Student')
+    student_id = fields.Many2one('res.partner', string='Student',
+                                    domain=[('is_student', '=', True)])
     employee_id = fields.Many2one('education.employee', string='Employee')
 
     def action_print_report(self):

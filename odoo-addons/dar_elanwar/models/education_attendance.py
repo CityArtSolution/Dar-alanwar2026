@@ -104,7 +104,7 @@ class EducationAttendance(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Present Students',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'list,form',
             'domain': [('id', 'in', present_lines.mapped('student_id').ids)],
         }
@@ -116,7 +116,7 @@ class EducationAttendance(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Absent Students',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'list,form',
             'domain': [('id', 'in', absent_lines.mapped('student_id').ids)],
         }
@@ -125,9 +125,10 @@ class EducationAttendance(models.Model):
     def _onchange_class_id(self):
         """Load all students in the class as present by default"""
         if self.class_id:
-            students = self.env['education.student'].search([
+            students = self.env['res.partner'].search([
+                ('is_student', '=', True),
                 ('class_id', '=', self.class_id.id),
-                ('state', '=', 'enrolled'),
+                ('student_state', '=', 'enrolled'),
             ])
             lines = []
             for student in students:
@@ -157,9 +158,10 @@ class EducationAttendance(models.Model):
         """Fill in attendance lines with all students from the class."""
         for rec in self:
             existing_students = rec.line_ids.mapped('student_id')
-            students = self.env['education.student'].search([
+            students = self.env['res.partner'].search([
+                ('is_student', '=', True),
                 ('class_id', '=', rec.class_id.id),
-                ('state', '=', 'enrolled'),
+                ('student_state', '=', 'enrolled'),
             ])
             for student in students:
                 if student not in existing_students:
@@ -193,9 +195,10 @@ class EducationAttendanceLine(models.Model):
         ondelete='cascade',
     )
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         required=True,
+        domain=[('is_student', '=', True)],
     )
     status = fields.Selection(
         selection=ATTENDANCE_STATUS,

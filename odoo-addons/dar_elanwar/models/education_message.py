@@ -50,11 +50,12 @@ class EducationMessage(models.Model):
         domain="[('department_id', '=', department_id)]",
     )
     student_ids = fields.Many2many(
-        'education.student',
+        'res.partner',
         'education_message_student_rel',
         'message_id',
         'student_id',
         string='Students',
+        domain=[('is_student', '=', True)],
     )
     subject = fields.Char(
         string='Subject',
@@ -103,16 +104,16 @@ class EducationMessage(models.Model):
     def _compute_recipient_count(self):
         for record in self:
             if record.recipient_type == 'all':
-                record.recipient_count = self.env['education.student'].search_count([('state', '=', 'enrolled')])
+                record.recipient_count = self.env['res.partner'].search_count([('student_state', '=', 'enrolled'), ('is_student', '=', True)])
             elif record.recipient_type == 'department':
-                record.recipient_count = self.env['education.student'].search_count([
+                record.recipient_count = self.env['res.partner'].search_count([
                     ('department_id', '=', record.department_id.id),
-                    ('state', '=', 'enrolled'),
+                    ('student_state', '=', 'enrolled'), ('is_student', '=', True),
                 ])
             elif record.recipient_type == 'class':
-                record.recipient_count = self.env['education.student'].search_count([
+                record.recipient_count = self.env['res.partner'].search_count([
                     ('class_id', '=', record.class_id.id),
-                    ('state', '=', 'enrolled'),
+                    ('student_state', '=', 'enrolled'), ('is_student', '=', True),
                 ])
             elif record.recipient_type == 'individual':
                 record.recipient_count = len(record.student_ids)
@@ -160,31 +161,31 @@ class EducationMessage(models.Model):
             return {
                 'type': 'ir.actions.act_window',
                 'name': 'Students',
-                'res_model': 'education.student',
+                'res_model': 'res.partner',
                 'view_mode': 'list,form',
-                'domain': [('state', '=', 'enrolled')],
+                'domain': [('student_state', '=', 'enrolled'), ('is_student', '=', True)],
             }
         elif self.recipient_type == 'department':
             return {
                 'type': 'ir.actions.act_window',
                 'name': 'Students',
-                'res_model': 'education.student',
+                'res_model': 'res.partner',
                 'view_mode': 'list,form',
-                'domain': [('department_id', '=', self.department_id.id), ('state', '=', 'enrolled')],
+                'domain': [('department_id', '=', self.department_id.id), ('student_state', '=', 'enrolled'), ('is_student', '=', True)],
             }
         elif self.recipient_type == 'class':
             return {
                 'type': 'ir.actions.act_window',
                 'name': 'Students',
-                'res_model': 'education.student',
+                'res_model': 'res.partner',
                 'view_mode': 'list,form',
-                'domain': [('class_id', '=', self.class_id.id), ('state', '=', 'enrolled')],
+                'domain': [('class_id', '=', self.class_id.id), ('student_state', '=', 'enrolled'), ('is_student', '=', True)],
             }
         else:
             return {
                 'type': 'ir.actions.act_window',
                 'name': 'Students',
-                'res_model': 'education.student',
+                'res_model': 'res.partner',
                 'view_mode': 'list,form',
                 'domain': [('id', 'in', student_ids)],
             }
@@ -218,16 +219,16 @@ class EducationMessage(models.Model):
         for record in self:
             # Get recipients based on type
             if record.recipient_type == 'all':
-                students = self.env['education.student'].search([('state', '=', 'enrolled')])
+                students = self.env['res.partner'].search([('student_state', '=', 'enrolled'), ('is_student', '=', True)])
             elif record.recipient_type == 'department':
-                students = self.env['education.student'].search([
+                students = self.env['res.partner'].search([
                     ('department_id', '=', record.department_id.id),
-                    ('state', '=', 'enrolled'),
+                    ('student_state', '=', 'enrolled'), ('is_student', '=', True),
                 ])
             elif record.recipient_type == 'class':
-                students = self.env['education.student'].search([
+                students = self.env['res.partner'].search([
                     ('class_id', '=', record.class_id.id),
-                    ('state', '=', 'enrolled'),
+                    ('student_state', '=', 'enrolled'), ('is_student', '=', True),
                 ])
             else:
                 students = record.student_ids

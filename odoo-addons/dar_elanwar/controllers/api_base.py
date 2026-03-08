@@ -96,7 +96,7 @@ class ApiBaseController(http.Controller):
     def _get_parent_children(self, parent):
         """Get all children for a parent."""
         children = parent.father_student_ids | parent.mother_student_ids
-        return children.filtered(lambda s: s.state in ('enrolled', 'suspended'))
+        return children.filtered(lambda s: s.student_state in ('enrolled', 'suspended'))
 
     def _serialize_student(self, student):
         """Serialize a student record to dict."""
@@ -107,8 +107,8 @@ class ApiBaseController(http.Controller):
             'arabic_name': student.arabic_name or '',
             'birthdate': str(student.birthdate) if student.birthdate else None,
             'gender': student.gender,
-            'photo_url': f'/web/image/education.student/{student.id}/photo'
-            if student.photo else None,
+            'photo_url': f'/web/image/res.partner/{student.id}/image_1920'
+            if student.image_1920 else None,
             'department': {
                 'id': student.department_id.id,
                 'name': student.department_id.name,
@@ -121,7 +121,7 @@ class ApiBaseController(http.Controller):
                 'id': student.level_id.id,
                 'name': student.level_id.name,
             } if student.level_id else None,
-            'state': student.state,
+            'state': student.student_state,
             'balance_due': student.balance_due,
             'attendance_rate': student.attendance_rate,
             'enrollment_date': str(student.enrollment_date)

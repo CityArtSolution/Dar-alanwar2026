@@ -18,11 +18,12 @@ class EducationStudentSubscription(models.Model):
     _order = 'start_date desc'
 
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         required=True,
         ondelete='cascade',
         tracking=True,
+        domain=[('is_student', '=', True)],
     )
     subscription_type_id = fields.Many2one(
         'education.subscription.type',
@@ -158,7 +159,7 @@ class EducationStudentSubscription(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Student',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'form',
             'res_id': self.student_id.id,
         }
@@ -256,7 +257,7 @@ class EducationStudentSubscription(models.Model):
             if not parent:
                 continue
             siblings = parent._get_all_children().filtered(
-                lambda s: s.id != student.id and s.state == 'enrolled')
+                lambda s: s.id != student.id and s.student_state == 'enrolled')
             if len(siblings) >= 1:
                 sibling_discount = self.env['education.discount'].search([
                     ('discount_type', '=', 'sibling'),

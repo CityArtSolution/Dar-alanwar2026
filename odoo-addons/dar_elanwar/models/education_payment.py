@@ -24,7 +24,7 @@ class EducationPayment(models.Model):
         tracking=True,
     )
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         related='installment_id.student_id',
         store=True,

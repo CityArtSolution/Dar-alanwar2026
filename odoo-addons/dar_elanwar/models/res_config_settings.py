@@ -6,11 +6,11 @@ class ResConfigSettings(models.TransientModel):
 
     default_branch_id = fields.Many2one(
         'education.branch', string='Default Branch',
-        default_model='education.student',
+        default_model='res.partner',
         config_parameter='dar_elanwar.default_branch_id')
     default_academic_year_id = fields.Many2one(
         'education.academic.year', string='Default Academic Year',
-        default_model='education.student',
+        default_model='res.partner',
         config_parameter='dar_elanwar.default_academic_year_id')
 
     student_code_prefix = fields.Char(

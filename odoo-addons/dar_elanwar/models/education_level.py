@@ -63,8 +63,9 @@ class EducationLevel(models.Model):
 
     def _compute_counts(self):
         for record in self:
-            record.student_count = self.env['education.student'].search_count([
-                ('level_id', '=', record.id)
+            record.student_count = self.env['res.partner'].search_count([
+                ('is_student', '=', True),
+                ('level_id', '=', record.id),
             ])
 
     # Stat button actions
@@ -86,9 +87,9 @@ class EducationLevel(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Students',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'list,kanban,form',
-            'domain': [('level_id', '=', self.id)],
+            'domain': [('is_student', '=', True), ('level_id', '=', self.id)],
         }
 
     def name_get(self):

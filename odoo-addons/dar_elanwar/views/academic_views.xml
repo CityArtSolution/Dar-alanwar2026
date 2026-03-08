@@ -561,11 +561,4 @@
         </field>
     </record>
 
-    <!-- Placeholder action for student (used in class form stat button) -->
-    <record id="action_education_student" model="ir.actions.act_window">
-        <field name="name">Students</field>
-        <field name="res_model">education.student</field>
-        <field name="view_mode">list,form</field>
-    </record>
-
 </odoo>

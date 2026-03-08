@@ -54,7 +54,7 @@ class EducationBranch(models.Model):
         string='Departments',
     )
     student_ids = fields.One2many(
-        'education.student',
+        'res.partner',
         'branch_id',
         string='Students',
     )
@@ -107,7 +107,7 @@ class EducationBranch(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Students',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'list,kanban,form',
             'domain': [('branch_id', '=', self.id)],
             'context': {'default_branch_id': self.id},

@@ -68,9 +68,10 @@ class EducationSubject(models.Model):
                 ('subject_id', '=', record.id)
             ])
             # Students in classes of this department
-            record.student_count = self.env['education.student'].search_count([
+            record.student_count = self.env['res.partner'].search_count([
+                ('is_student', '=', True),
                 ('department_id', '=', record.department_id.id),
-                ('state', '=', 'enrolled'),
+                ('student_state', '=', 'enrolled'),
             ])
 
     # Stat button actions
@@ -115,9 +116,9 @@ class EducationSubject(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Students',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'list,kanban,form',
-            'domain': [('department_id', '=', self.department_id.id), ('state', '=', 'enrolled')],
+            'domain': [('is_student', '=', True), ('department_id', '=', self.department_id.id), ('student_state', '=', 'enrolled')],
         }
 
     def name_get(self):

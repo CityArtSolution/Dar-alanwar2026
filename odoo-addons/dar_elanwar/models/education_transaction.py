@@ -92,7 +92,7 @@ class EducationTransaction(models.Model):
 
     # Related to other modules (optional links)
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Related Student',
     )
     employee_id = fields.Many2one(

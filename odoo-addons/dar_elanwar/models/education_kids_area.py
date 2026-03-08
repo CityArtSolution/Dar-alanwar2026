@@ -83,7 +83,7 @@ class EducationKidsAreaBooking(models.Model):
 
     slot_id = fields.Many2one('education.kids.area.slot', string='Time Slot',
                                required=True)
-    student_id = fields.Many2one('education.student', string='Student',
+    student_id = fields.Many2one('res.partner', string='Student',
                                   required=True)
     parent_id = fields.Many2one('res.partner', string='Parent',
                                 domain=[('is_guardian', '=', True)])
@@ -147,7 +147,7 @@ class EducationKidsAreaAttendance(models.Model):
 
     booking_id = fields.Many2one('education.kids.area.booking',
                                   string='Booking', ondelete='cascade')
-    student_id = fields.Many2one('education.student', string='Student',
+    student_id = fields.Many2one('res.partner', string='Student',
                                   required=True)
     check_in_time = fields.Datetime(string='Check In')
     check_out_time = fields.Datetime(string='Check Out')

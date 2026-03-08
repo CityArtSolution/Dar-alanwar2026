@@ -83,7 +83,7 @@ class EducationAcademicYear(models.Model):
         string='Classes',
     )
     student_ids = fields.One2many(
-        'education.student',
+        'res.partner',
         'academic_year_id',
         string='Students',
     )
@@ -145,7 +145,7 @@ class EducationAcademicYear(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Students',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'list,kanban,form',
             'domain': [
                 ('enrollment_date', '>=', self.date_start),

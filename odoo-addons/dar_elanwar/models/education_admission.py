@@ -62,8 +62,9 @@ class EducationAdmissionApplication(models.Model):
                                         string='Documents Complete')
 
     # Created Student
-    student_id = fields.Many2one('education.student',
-                                  string='Created Student', readonly=True)
+    student_id = fields.Many2one('res.partner',
+                                  string='Created Student', readonly=True,
+                                  domain=[('is_student', '=', True)])
 
     color = fields.Integer(string='Color Index')
 
@@ -111,7 +112,7 @@ class EducationAdmissionApplication(models.Model):
                 'guardian_relation': 'father',
             })
 
-        student = self.env['education.student'].create({
+        student = self.env['res.partner'].create({
             'name': self.student_name,
             'arabic_name': self.arabic_name,
             'birthdate': self.birthdate,
@@ -120,8 +121,9 @@ class EducationAdmissionApplication(models.Model):
             'branch_id': self.branch_id.id if self.branch_id else False,
             'father_id': parent.id if parent else False,
             'enrollment_date': fields.Date.today(),
-            'state': 'enrolled',
-            'source_id': self.source_id.id if self.source_id else False,
+            'student_state': 'enrolled',
+            'enrollment_source_id': self.source_id.id if self.source_id else False,
+            'is_student': True,
         })
         self.write({
             'stage': 'enrolled',
@@ -129,7 +131,7 @@ class EducationAdmissionApplication(models.Model):
         })
         return {
             'type': 'ir.actions.act_window',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'res_id': student.id,
             'view_mode': 'form',
         }

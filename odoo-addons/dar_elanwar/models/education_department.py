@@ -100,8 +100,9 @@ class EducationDepartment(models.Model):
             record.level_count = len(record.level_ids)
             record.class_count = len(record.class_ids)
             record.subject_count = len(record.subject_ids)
-            record.student_count = self.env['education.student'].search_count([
-                ('department_id', '=', record.id)
+            record.student_count = self.env['res.partner'].search_count([
+                ('is_student', '=', True),
+                ('department_id', '=', record.id),
             ])
             record.employee_count = self.env['education.employee'].search_count([
                 ('department_id', '=', record.id)
@@ -150,9 +151,9 @@ class EducationDepartment(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Students',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'list,kanban,form',
-            'domain': [('department_id', '=', self.id)],
+            'domain': [('is_student', '=', True), ('department_id', '=', self.id)],
             'context': {'default_department_id': self.id},
         }
 

@@ -26,7 +26,7 @@ class EducationEnrollmentSource(models.Model):
 
     # Related records
     student_ids = fields.One2many(
-        'education.student',
+        'res.partner',
         'enrollment_source_id',
         string='Students',
     )
@@ -47,7 +47,7 @@ class EducationEnrollmentSource(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Students',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'list,form',
             'domain': [('enrollment_source_id', '=', self.id)],
             'context': {'default_enrollment_source_id': self.id},

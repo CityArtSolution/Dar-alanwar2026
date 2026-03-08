@@ -21,7 +21,7 @@ class EducationEmailLog(models.Model):
         ondelete='cascade',
     )
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         required=True,
     )

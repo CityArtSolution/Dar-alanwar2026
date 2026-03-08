@@ -57,9 +57,10 @@ class EducationClass(models.Model):
 
     # Related records
     student_ids = fields.One2many(
-        'education.student',
+        'res.partner',
         'class_id',
         string='Students',
+        domain=[('is_student', '=', True)],
     )
     homework_ids = fields.One2many(
         'education.homework',
@@ -109,7 +110,7 @@ class EducationClass(models.Model):
     @api.depends('student_ids')
     def _compute_student_count(self):
         for record in self:
-            record.student_count = len(record.student_ids.filtered(lambda s: s.state == 'enrolled'))
+            record.student_count = len(record.student_ids.filtered(lambda s: s.student_state == 'enrolled'))
 
     @api.depends('capacity', 'student_count')
     def _compute_available_seats(self):
@@ -139,10 +140,10 @@ class EducationClass(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Students',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'list,kanban,form',
-            'domain': [('class_id', '=', self.id)],
-            'context': {'default_class_id': self.id, 'default_department_id': self.department_id.id},
+            'domain': [('is_student', '=', True), ('class_id', '=', self.id)],
+            'context': {'default_class_id': self.id, 'default_department_id': self.department_id.id, 'default_is_student': True},
         }
 
     def action_view_homework(self):

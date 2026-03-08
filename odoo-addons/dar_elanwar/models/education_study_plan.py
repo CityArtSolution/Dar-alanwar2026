@@ -9,7 +9,7 @@ class EducationStudyPlan(models.Model):
     _order = 'sequence, id'
 
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         required=True,
         ondelete='cascade',

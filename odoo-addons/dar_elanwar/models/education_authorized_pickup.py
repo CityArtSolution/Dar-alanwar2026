@@ -9,10 +9,11 @@ class EducationAuthorizedPickup(models.Model):
     _order = 'student_id, name'
 
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         required=True,
         ondelete='cascade',
+        domain=[('is_student', '=', True)],
     )
     name = fields.Char(
         string='Full Name',

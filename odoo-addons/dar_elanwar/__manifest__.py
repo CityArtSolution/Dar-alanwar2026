@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Dar El-Anwar Educational Management',
-    'version': '19.0.3.0.0',
+    'version': '19.0.4.0.0',
     'category': 'Education',
     'summary': 'Complete Educational Institution Management System',
     'description': """

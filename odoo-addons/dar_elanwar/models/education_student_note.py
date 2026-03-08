@@ -18,10 +18,11 @@ class EducationStudentNote(models.Model):
     _order = 'date desc, id desc'
 
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         required=True,
         ondelete='cascade',
+        domain=[('is_student', '=', True)],
     )
     date = fields.Date(
         string='Date',

@@ -17,7 +17,7 @@ class EducationFinancialPlan(models.Model):
     _order = 'start_date desc, id desc'
 
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         required=True,
         ondelete='cascade',

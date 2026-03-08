@@ -37,22 +37,21 @@ ADMISSION_TIME_SELECTION = [
 
 
 class EducationStudent(models.Model):
-    _name = 'education.student'
-    _description = 'Student'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'code, name'
+    _inherit = 'res.partner'
 
-    # Basic Information
+    # Student flag
+    is_student = fields.Boolean(
+        string='Is Student',
+        default=False,
+        index=True,
+    )
+
+    # Basic Information (student-specific — name, phone, active, image_1920, country_id, street, comment already on res.partner)
     code = fields.Char(
         string='Student Code',
         readonly=True,
         copy=False,
         default='New',
-    )
-    name = fields.Char(
-        string='Full Name (English)',
-        required=True,
-        tracking=True,
     )
     arabic_name = fields.Char(
         string='Full Name (Arabic)',
@@ -75,22 +74,9 @@ class EducationStudent(models.Model):
     gender = fields.Selection(
         selection=GENDER_TYPES,
         string='Gender',
-        required=True,
-        default='male',
-    )
-    photo = fields.Binary(
-        string='Photo',
-        attachment=True,
-    )
-    nationality = fields.Many2one(
-        'res.country',
-        string='Nationality',
     )
 
-    # PRD Gap Fields (from new enhancements)
-    national_id = fields.Char(
-        string='National ID / Iqama',
-    )
+    # PRD Gap Fields
     admission_time = fields.Selection(
         ADMISSION_TIME_SELECTION,
         string='Admission Time',
@@ -106,7 +92,7 @@ class EducationStudent(models.Model):
         string='Place of Birth',
     )
 
-    # Parents
+    # Parents (self-referential on res.partner)
     father_id = fields.Many2one(
         'res.partner',
         string='Father',
@@ -122,7 +108,6 @@ class EducationStudent(models.Model):
     department_id = fields.Many2one(
         'education.department',
         string='Department',
-        required=True,
         tracking=True,
     )
     class_id = fields.Many2one(
@@ -164,14 +149,8 @@ class EducationStudent(models.Model):
         string='Branch',
     )
 
-    # Contact
-    phone = fields.Char(
-        string='Phone',
-    )
-    address = fields.Text(
-        string='Address',
-    )
-    city_id = fields.Many2one(
+    # Contact (student-specific — renamed from city_id to avoid conflict with partner's city char)
+    student_city_id = fields.Many2one(
         'education.city',
         string='City',
     )
@@ -190,19 +169,12 @@ class EducationStudent(models.Model):
         string='Medical Notes',
     )
 
-    # State
-    state = fields.Selection(
+    # State (renamed from state to student_state to avoid conflict)
+    student_state = fields.Selection(
         selection=STUDENT_STATES,
-        string='Status',
+        string='Student Status',
         default='draft',
         tracking=True,
-    )
-    active = fields.Boolean(
-        string='Active',
-        default=True,
-    )
-    notes = fields.Text(
-        string='Notes',
     )
 
     # Related records
@@ -216,7 +188,7 @@ class EducationStudent(models.Model):
         'student_id',
         string='Authorized Pickup',
     )
-    note_ids = fields.One2many(
+    student_note_ids = fields.One2many(
         'education.student.note',
         'student_id',
         string='Student Notes',
@@ -262,62 +234,49 @@ class EducationStudent(models.Model):
         string='Financial Plans',
     )
 
-    # Computed counts for stat buttons (original)
-    subscription_count = fields.Integer(
-        string='Subscriptions',
-        compute='_compute_stat_counts',
-    )
+    # Student-only computed counts (non-overlapping with guardian counts)
     attendance_count = fields.Integer(
         string='Attendance',
-        compute='_compute_stat_counts',
+        compute='_compute_student_stat_counts',
     )
     evaluation_count = fields.Integer(
         string='Evaluations',
-        compute='_compute_stat_counts',
+        compute='_compute_student_stat_counts',
     )
     homework_count = fields.Integer(
         string='Homework',
-        compute='_compute_stat_counts',
-    )
-    transport_count = fields.Integer(
-        string='Transport',
-        compute='_compute_stat_counts',
-    )
-    payment_count = fields.Integer(
-        string='Payments',
-        compute='_compute_stat_counts',
+        compute='_compute_student_stat_counts',
     )
     stock_out_count = fields.Integer(
         string='Stock Out',
-        compute='_compute_stat_counts',
+        compute='_compute_student_stat_counts',
     )
-    message_count = fields.Integer(
+    student_message_count = fields.Integer(
         string='Messages',
-        compute='_compute_stat_counts',
+        compute='_compute_student_stat_counts',
     )
     receipt_count = fields.Integer(
         string='Receipts',
-        compute='_compute_stat_counts',
+        compute='_compute_student_stat_counts',
     )
     sibling_count = fields.Integer(
         string='Siblings',
-        compute='_compute_stat_counts',
+        compute='_compute_student_stat_counts',
     )
-    note_count = fields.Integer(
+    student_note_count = fields.Integer(
         string='Notes',
-        compute='_compute_stat_counts',
+        compute='_compute_student_stat_counts',
     )
-
     study_plan_count = fields.Integer(
-        compute='_compute_stat_counts',
+        compute='_compute_student_stat_counts',
         string='Study Plans',
     )
     financial_plan_count = fields.Integer(
-        compute='_compute_stat_counts',
+        compute='_compute_student_stat_counts',
         string='Financial Plans',
     )
 
-    # Computed fields from new enhancements
+    # Computed fields from enhancements
     balance_due = fields.Float(
         compute='_compute_balance_due',
         string='Balance Due',
@@ -336,10 +295,6 @@ class EducationStudent(models.Model):
         string='Attendance Rate (%)',
     )
 
-    _sql_constraints = [
-        ('code_unique', 'UNIQUE(code)', 'Student code must be unique!'),
-    ]
-
     @api.depends('birthdate')
     def _compute_age(self):
         today = date.today()
@@ -352,47 +307,62 @@ class EducationStudent(models.Model):
                 record.age = ''
                 record.age_months = 0
 
-    def _compute_stat_counts(self):
+    def _compute_guardian_counts(self):
+        """Extend guardian counts to also handle student-specific values."""
+        super()._compute_guardian_counts()
         for record in self:
-            record.subscription_count = len(record.subscription_ids)
+            if record.is_student:
+                record.subscription_count = len(record.subscription_ids)
+                installment_ids = record.subscription_ids.mapped('installment_ids').ids
+                record.payment_count = self.env['education.payment'].search_count([
+                    ('installment_id', 'in', installment_ids)
+                ])
+                record.transport_count = len(record.transport_ids)
+
+    def _compute_student_stat_counts(self):
+        for record in self:
+            if not record.is_student:
+                record.attendance_count = 0
+                record.evaluation_count = 0
+                record.homework_count = 0
+                record.stock_out_count = 0
+                record.student_message_count = 0
+                record.receipt_count = 0
+                record.sibling_count = 0
+                record.student_note_count = 0
+                record.study_plan_count = 0
+                record.financial_plan_count = 0
+                continue
+
             record.attendance_count = len(record.attendance_line_ids)
             record.evaluation_count = len(record.evaluation_ids)
             record.homework_count = len(record.homework_ids)
-            record.transport_count = len(record.transport_ids)
             record.sibling_count = len(record.sibling_ids)
-            record.note_count = len(record.note_ids)
+            record.student_note_count = len(record.student_note_ids)
+            record.study_plan_count = len(record.study_plan_ids)
+            record.financial_plan_count = len(record.financial_plan_ids)
 
-            # Count payments from all subscriptions
-            installment_ids = record.subscription_ids.mapped('installment_ids').ids
-            record.payment_count = self.env['education.payment'].search_count([
-                ('installment_id', 'in', installment_ids)
-            ])
-
-            # Stock out records for this student
             record.stock_out_count = self.env['education.stock.out'].search_count([
                 ('student_id', '=', record.id)
             ])
 
-            # Messages sent to this student (via class or individual)
-            record.message_count = self.env['education.message'].search_count([
+            record.student_message_count = self.env['education.message'].search_count([
                 '|', '|',
                 ('recipient_type', '=', 'all'),
                 '&', ('recipient_type', '=', 'class'), ('class_id', '=', record.class_id.id),
                 '&', ('recipient_type', '=', 'individual'), ('student_ids', 'in', record.id),
             ])
 
-            # Payment receipts for this student
             record.receipt_count = self.env['education.payment.receipt'].search_count([
                 ('student_id', '=', record.id)
             ])
 
-            # Study plans and financial plans
-            record.study_plan_count = len(record.study_plan_ids)
-            record.financial_plan_count = len(record.financial_plan_ids)
-
     @api.depends('subscription_ids.total_amount', 'subscription_ids.status')
     def _compute_balance_due(self):
         for student in self:
+            if not student.is_student:
+                student.balance_due = 0.0
+                continue
             total_due = 0.0
             for sub in student.subscription_ids.filtered(
                     lambda s: s.status == 'active'):
@@ -403,16 +373,25 @@ class EducationStudent(models.Model):
 
     def _compute_installment_count(self):
         for student in self:
+            if not student.is_student:
+                student.installment_count = 0
+                continue
             student.installment_count = self.env['education.installment'].search_count(
                 [('subscription_id.student_id', '=', student.id)])
 
     def _compute_goal_count(self):
         for student in self:
+            if not student.is_student:
+                student.goal_count = 0
+                continue
             student.goal_count = self.env['education.student.evaluation'].search_count(
                 [('student_id', '=', student.id)])
 
     def _compute_attendance_rate(self):
         for student in self:
+            if not student.is_student:
+                student.attendance_rate = 0.0
+                continue
             total = self.env['education.attendance.line'].search_count(
                 [('student_id', '=', student.id)])
             present = self.env['education.attendance.line'].search_count(
@@ -423,8 +402,9 @@ class EducationStudent(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if vals.get('code', 'New') == 'New':
-                vals['code'] = self.env['ir.sequence'].next_by_code('education.student') or 'New'
+            if vals.get('is_student'):
+                if vals.get('code', 'New') == 'New':
+                    vals['code'] = self.env['ir.sequence'].next_by_code('education.student') or 'New'
         return super().create(vals_list)
 
     @api.onchange('department_id')
@@ -436,13 +416,13 @@ class EducationStudent(models.Model):
         else:
             self.class_id = False
 
-    @api.onchange('national_id')
-    def _onchange_national_id(self):
+    @api.onchange('id_number')
+    def _onchange_id_number_student(self):
         """Auto-detect guardian by national ID."""
-        if self.national_id:
+        if self.is_student and self.id_number:
             parent = self.env['res.partner'].search(
                 [('is_guardian', '=', True),
-                 ('id_number', '=', self.national_id)], limit=1)
+                 ('id_number', '=', self.id_number)], limit=1)
             if parent and not self.father_id and parent.guardian_relation == 'father':
                 self.father_id = parent.id
             elif parent and not self.mother_id and parent.guardian_relation == 'mother':
@@ -450,25 +430,25 @@ class EducationStudent(models.Model):
 
     def action_pending(self):
         """Set to pending enrollment"""
-        self.write({'state': 'pending'})
+        self.write({'student_state': 'pending'})
 
     def action_enroll(self):
         """Enroll the student"""
-        self.write({'state': 'enrolled'})
+        self.write({'student_state': 'enrolled'})
 
     def action_suspend(self):
         """Suspend the student"""
-        self.write({'state': 'suspended'})
+        self.write({'student_state': 'suspended'})
 
     def action_archive_student(self):
         """Archive the student"""
-        self.write({'state': 'archived', 'active': False})
+        self.write({'student_state': 'archived', 'active': False})
 
     def action_reactivate(self):
         """Reactivate archived student"""
-        self.write({'state': 'enrolled', 'active': True})
+        self.write({'student_state': 'enrolled', 'active': True})
 
-    # Stat button actions (original)
+    # Stat button actions
     def action_view_subscriptions(self):
         """View student subscriptions"""
         self.ensure_one()
@@ -530,14 +510,16 @@ class EducationStudent(models.Model):
     def action_view_payments(self):
         """View student payments"""
         self.ensure_one()
-        installment_ids = self.subscription_ids.mapped('installment_ids').ids
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Payments',
-            'res_model': 'education.payment',
-            'view_mode': 'list,form',
-            'domain': [('installment_id', 'in', installment_ids)],
-        }
+        if self.is_student:
+            installment_ids = self.subscription_ids.mapped('installment_ids').ids
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Payments',
+                'res_model': 'education.payment',
+                'view_mode': 'list,form',
+                'domain': [('installment_id', 'in', installment_ids)],
+            }
+        return super().action_view_payments()
 
     def action_view_stock_out(self):
         """View stock out records for this student"""
@@ -627,7 +609,7 @@ class EducationStudent(models.Model):
                 'res_id': self.mother_id.id,
             }
 
-    # Smart button actions (from new enhancements)
+    # Smart button actions (from enhancements)
     def action_view_balance(self):
         """View unpaid installments (balance due)"""
         self.ensure_one()
@@ -644,13 +626,15 @@ class EducationStudent(models.Model):
     def action_view_account_statement(self):
         """View account statement for this student"""
         self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('Account Statement'),
-            'res_model': 'education.payment',
-            'view_mode': 'list,form',
-            'domain': [('installment_id.subscription_id.student_id', '=', self.id)],
-        }
+        if self.is_student:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Account Statement'),
+                'res_model': 'education.payment',
+                'view_mode': 'list,form',
+                'domain': [('installment_id.subscription_id.student_id', '=', self.id)],
+            }
+        return super().action_view_account_statement()
 
     def action_view_installments(self):
         """View all installments for this student"""

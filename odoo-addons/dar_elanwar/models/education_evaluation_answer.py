@@ -30,7 +30,7 @@ class EducationEvaluationAnswer(models.Model):
 
     # Related fields
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         related='evaluation_id.student_id',
         store=True,

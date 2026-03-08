@@ -26,9 +26,10 @@ class EducationCity(models.Model):
 
     # Related records
     student_ids = fields.One2many(
-        'education.student',
-        'city_id',
+        'res.partner',
+        'student_city_id',
         string='Students',
+        domain=[('is_student', '=', True)],
     )
     parent_ids = fields.One2many(
         'res.partner',
@@ -57,10 +58,10 @@ class EducationCity(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Students',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'list,form',
-            'domain': [('city_id', '=', self.id)],
-            'context': {'default_city_id': self.id},
+            'domain': [('is_student', '=', True), ('student_city_id', '=', self.id)],
+            'context': {'default_student_city_id': self.id, 'default_is_student': True},
         }
 
     def action_view_parents(self):

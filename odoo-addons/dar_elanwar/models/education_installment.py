@@ -15,7 +15,7 @@ class EducationInstallment(models.Model):
         ondelete='cascade',
     )
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         related='subscription_id.student_id',
         store=True,
@@ -115,7 +115,7 @@ class EducationInstallment(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Student',
-            'res_model': 'education.student',
+            'res_model': 'res.partner',
             'view_mode': 'form',
             'res_id': self.student_id.id,
         }

@@ -103,9 +103,10 @@ class EducationEvaluationGoal(models.Model):
         """Activate the evaluation goal and create student evaluations"""
         for record in self:
             # Get all enrolled students in the class
-            students = self.env['education.student'].search([
+            students = self.env['res.partner'].search([
+                ('is_student', '=', True),
                 ('class_id', '=', record.class_id.id),
-                ('state', '=', 'enrolled'),
+                ('student_state', '=', 'enrolled'),
             ])
             # Create evaluation records for each student
             for student in students:

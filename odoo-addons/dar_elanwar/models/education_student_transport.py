@@ -17,10 +17,11 @@ class EducationStudentTransport(models.Model):
     _order = 'student_id'
 
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         required=True,
         ondelete='cascade',
+        domain=[('is_student', '=', True)],
     )
     pickup_method = fields.Selection(
         selection=PICKUP_METHODS,

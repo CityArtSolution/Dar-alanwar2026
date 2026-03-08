@@ -63,7 +63,7 @@ class EducationContentAccess(models.Model):
     _description = 'Content Access Grant'
     _order = 'granted_date desc'
 
-    student_id = fields.Many2one('education.student', string='Student',
+    student_id = fields.Many2one('res.partner', string='Student',
                                   required=True)
     content_item_id = fields.Many2one('education.content.item',
                                        string='Content Item', required=True)
@@ -86,7 +86,7 @@ class EducationContentUsage(models.Model):
     _description = 'Content Usage Log'
     _order = 'access_date desc'
 
-    student_id = fields.Many2one('education.student', string='Student',
+    student_id = fields.Many2one('res.partner', string='Student',
                                   required=True)
     content_item_id = fields.Many2one('education.content.item',
                                        string='Content Item', required=True)

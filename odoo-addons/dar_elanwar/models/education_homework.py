@@ -137,9 +137,10 @@ class EducationHomework(models.Model):
     def action_assign(self):
         """Assign homework to all students in the class"""
         for record in self:
-            students = self.env['education.student'].search([
+            students = self.env['res.partner'].search([
+                ('is_student', '=', True),
                 ('class_id', '=', record.class_id.id),
-                ('state', '=', 'enrolled'),
+                ('student_state', '=', 'enrolled'),
             ])
             for student in students:
                 existing = self.env['education.student.homework'].search([
@@ -187,9 +188,10 @@ class EducationStudentHomework(models.Model):
         ondelete='cascade',
     )
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         required=True,
+        domain=[('is_student', '=', True)],
     )
     status = fields.Selection(
         selection=SUBMISSION_STATUS,

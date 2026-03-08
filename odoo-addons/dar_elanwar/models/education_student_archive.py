@@ -9,10 +9,11 @@ class EducationStudentArchive(models.Model):
     _order = 'archive_date desc'
 
     student_id = fields.Many2one(
-        'education.student',
+        'res.partner',
         string='Student',
         required=True,
         ondelete='cascade',
+        domain=[('is_student', '=', True)],
     )
     archive_date = fields.Date(
         string='Archive Date',

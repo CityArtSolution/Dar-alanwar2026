@@ -30,7 +30,7 @@ class AuthApiController(ApiBaseController):
         if email:
             domain = [('email', '=', email)]
         elif phone:
-            domain = ['|', ('phone', '=', phone), ('guardian_mobile', '=', phone)]
+            domain = ['|', ('phone', '=', phone), ('mobile', '=', phone)]
 
         parent = request.env['res.partner'].sudo().search(
             [('is_guardian', '=', True)] + domain, limit=1)
@@ -88,7 +88,7 @@ class AuthApiController(ApiBaseController):
             'name': parent.name,
             'email': parent.email,
             'phone': parent.phone,
-            'mobile': parent.guardian_mobile,
+            'mobile': parent.mobile,
             'relation': parent.guardian_relation,
             'nationality': parent.country_id.name if parent.country_id else None,
             'job': parent.function,

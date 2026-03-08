@@ -184,16 +184,16 @@
                             </t>
                         </td>
                         <th>&#1575;&#1604;&#1603;&#1608;&#1583; / Code</th>
-                        <td colspan="3"><t t-esc="doc.student_code or '-'"/></td>
+                        <td colspan="3"><t t-esc="doc.code or '-'"/></td>
                     </tr>
                     <tr>
                         <th>&#1575;&#1604;&#1575;&#1587;&#1605; (&#1593;&#1585;&#1576;&#1610;) / Name (AR)</th>
-                        <td colspan="3"><t t-esc="doc.name or '-'"/></td>
+                        <td colspan="3"><t t-esc="doc.arabic_name or '-'"/></td>
                     </tr>
                     <tr>
                         <th>&#1575;&#1604;&#1575;&#1587;&#1605; (&#1573;&#1606;&#1580;&#1604;&#1610;&#1586;&#1610;) / Name (EN)</th>
                         <td colspan="3" style="direction:ltr; text-align:left;">
-                            <t t-esc="doc.name_en or '-'"/>
+                            <t t-esc="doc.name or '-'"/>
                         </td>
                     </tr>
                     <tr>
@@ -206,7 +206,7 @@
                         <th>&#1575;&#1604;&#1605;&#1587;&#1578;&#1608;&#1609; / Level</th>
                         <td><t t-esc="doc.level_id.name if doc.level_id else '-'"/></td>
                         <th>&#1575;&#1604;&#1581;&#1575;&#1604;&#1577; / State</th>
-                        <td><t t-esc="doc.state or '-'"/></td>
+                        <td><t t-esc="doc.student_state or '-'"/></td>
                     </tr>
                 </table>
 
@@ -224,10 +224,10 @@
                     </tr>
                     <tr>
                         <th>&#1575;&#1604;&#1580;&#1606;&#1587;&#1610;&#1577; / Nationality</th>
-                        <td><t t-esc="doc.nationality_id.name if doc.nationality_id else '-'"/></td>
+                        <td><t t-esc="doc.country_id.name if doc.country_id else '-'"/></td>
                         <th>&#1575;&#1604;&#1585;&#1602;&#1605; &#1575;&#1604;&#1608;&#1591;&#1606;&#1610; / National ID</th>
                         <td style="direction:ltr; text-align:left;">
-                            <t t-esc="doc.national_id or '-'"/>
+                            <t t-esc="doc.id_number or '-'"/>
                         </td>
                     </tr>
                     <tr>
@@ -252,32 +252,32 @@
                 <table class="info-table">
                     <tr>
                         <th>&#1575;&#1587;&#1605; &#1575;&#1604;&#1571;&#1576; / Father Name</th>
-                        <td><t t-esc="doc.father_name or '-'"/></td>
+                        <td><t t-esc="doc.father_id.name if doc.father_id else '-'"/></td>
                         <th>&#1607;&#1575;&#1578;&#1601; &#1575;&#1604;&#1571;&#1576; / Father Phone</th>
                         <td style="direction:ltr; text-align:left;">
-                            <t t-esc="doc.father_phone or '-'"/>
+                            <t t-esc="doc.father_id.phone if doc.father_id else '-'"/>
                         </td>
                     </tr>
                     <tr>
                         <th>&#1607;&#1608;&#1610;&#1577; &#1575;&#1604;&#1571;&#1576; / Father ID</th>
                         <td style="direction:ltr; text-align:left;">
-                            <t t-esc="doc.father_national_id or '-'"/>
+                            <t t-esc="doc.father_id.id_number if doc.father_id else '-'"/>
                         </td>
                         <th></th>
                         <td></td>
                     </tr>
                     <tr>
                         <th>&#1575;&#1587;&#1605; &#1575;&#1604;&#1571;&#1605; / Mother Name</th>
-                        <td><t t-esc="doc.mother_name or '-'"/></td>
+                        <td><t t-esc="doc.mother_id.name if doc.mother_id else '-'"/></td>
                         <th>&#1607;&#1575;&#1578;&#1601; &#1575;&#1604;&#1571;&#1605; / Mother Phone</th>
                         <td style="direction:ltr; text-align:left;">
-                            <t t-esc="doc.mother_phone or '-'"/>
+                            <t t-esc="doc.mother_id.phone if doc.mother_id else '-'"/>
                         </td>
                     </tr>
                     <tr>
                         <th>&#1607;&#1608;&#1610;&#1577; &#1575;&#1604;&#1571;&#1605; / Mother ID</th>
                         <td style="direction:ltr; text-align:left;">
-                            <t t-esc="doc.mother_national_id or '-'"/>
+                            <t t-esc="doc.mother_id.id_number if doc.mother_id else '-'"/>
                         </td>
                         <th></th>
                         <td></td>
