@@ -14,7 +14,6 @@
                 <field name="name"/>
                 <field name="guardian_relation"/>
                 <field name="phone"/>
-                <field name="mobile"/>
                 <field name="function"/>
                 <field name="student_count"/>
                 <field name="active" column_invisible="1"/>
@@ -88,8 +87,7 @@
                         </group>
                         <group string="Contact">
                             <field name="phone"/>
-                            <field name="mobile"/>
-                            <field name="email"/>
+                                        <field name="email"/>
                         </group>
                     </group>
                     <group>
@@ -167,7 +165,6 @@
             <search string="Search Guardians">
                 <field name="name"/>
                 <field name="phone"/>
-                <field name="mobile"/>
                 <filter string="Fathers" name="fathers" domain="[('guardian_relation', '=', 'father')]"/>
                 <filter string="Mothers" name="mothers" domain="[('guardian_relation', '=', 'mother')]"/>
                 <filter string="Guardians" name="guardians" domain="[('guardian_relation', '=', 'guardian')]"/>
