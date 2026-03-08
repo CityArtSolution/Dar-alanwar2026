@@ -66,7 +66,7 @@ def migrate(cr, version):
     cr.execute("""
         SELECT id, name, phone, mobile, email, job, workplace,
                relation, marital_status, address, id_number,
-               photo, notes, active, nationality, job_number,
+               notes, active, nationality, job_number,
                education_level, mother_name, mother_phone,
                mother_national_id, mother_education, city_id
         FROM education_parent
@@ -101,7 +101,6 @@ def migrate(cr, version):
             'parent_social_status': social_status,
             'street': record.get('address'),
             'id_number': record.get('id_number'),
-            'image_1920': record.get('photo'),
             'comment': record.get('notes'),
             'active': record.get('active', True),
             'is_guardian': True,
