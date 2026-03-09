@@ -14,15 +14,7 @@ def migrate(cr, version):
     """
     _logger.info('Creating portal user accounts for existing guardians...')
 
-    # Ensure unique indexes exist (ORM constraints may not be applied yet)
-    cr.execute("""
-        CREATE UNIQUE INDEX IF NOT EXISTS dar_portal_user_username_unique
-        ON dar_portal_user (username)
-    """)
-    cr.execute("""
-        CREATE UNIQUE INDEX IF NOT EXISTS dar_portal_user_partner_unique
-        ON dar_portal_user (partner_id)
-    """)
+    # No unique indexes — Python @api.constrains handles validation
 
     # Find all guardians with a phone number who don't already have a portal user
     cr.execute("""
@@ -73,3 +65,12 @@ def migrate(cr, version):
         'Created %d portal user accounts out of %d guardians (%d skipped).',
         created, len(guardians), skipped
     )
+
+    # Update stored computed fields on res_partner
+    cr.execute("""
+        UPDATE res_partner rp
+        SET has_portal_user = TRUE,
+            portal_user_id = dpu.id
+        FROM dar_portal_user dpu
+        WHERE dpu.partner_id = rp.id
+    """)
