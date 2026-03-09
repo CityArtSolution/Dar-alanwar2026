@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==================== Form View ==================== -->
+    <record id="view_education_daily_note_form" model="ir.ui.view">
+        <field name="name">education.daily.note.form</field>
+        <field name="model">education.daily.note</field>
+        <field name="arch" type="xml">
+            <form string="Daily Note">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="branch_id"/>
+                        </group>
+                        <group>
+                            <field name="user_id"/>
+                        </group>
+                    </group>
+                    <separator string="Note"/>
+                    <field name="note" placeholder="Write your daily note here..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ==================== Tree View ==================== -->
+    <record id="view_education_daily_note_tree" model="ir.ui.view">
+        <field name="name">education.daily.note.tree</field>
+        <field name="model">education.daily.note</field>
+        <field name="arch" type="xml">
+            <tree string="Daily Notes">
+                <field name="date"/>
+                <field name="note"/>
+                <field name="branch_id"/>
+                <field name="user_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ==================== Search View ==================== -->
+    <record id="view_education_daily_note_search" model="ir.ui.view">
+        <field name="name">education.daily.note.search</field>
+        <field name="model">education.daily.note</field>
+        <field name="arch" type="xml">
+            <search string="Search Daily Notes">
+                <field name="note"/>
+                <field name="branch_id"/>
+                <field name="user_id"/>
+                <separator/>
+                <filter string="Today" name="today"
+                        domain="[('date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
+                    <filter string="Branch" name="group_branch" context="{'group_by': 'branch_id'}"/>
+                    <filter string="User" name="group_user" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ==================== Action ==================== -->
+    <record id="action_education_daily_note" model="ir.actions.act_window">
+        <field name="name">Daily Notes</field>
+        <field name="res_model">education.daily.note</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_education_daily_note_search"/>
+        <field name="context">{'search_default_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new daily note
+            </p>
+            <p>
+                Daily notes allow you to record important observations,
+                reminders, or events for each day.
+            </p>
+        </field>
+    </record>
+
+</odoo>

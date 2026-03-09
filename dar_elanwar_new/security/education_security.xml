@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- ============================================================ -->
+        <!-- Education Module Category                                     -->
+        <!-- ============================================================ -->
+        <record id="module_category_education" model="ir.module.category">
+            <field name="name">Education</field>
+            <field name="description">Education Management System for Dar Al-Anwar Academy</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- Security Groups                                               -->
+        <!-- ============================================================ -->
+
+        <!-- Education User -->
+        <record id="education_group_user" model="res.groups">
+            <field name="name">Education User</field>
+            <field name="category_id" ref="module_category_education"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Basic read access to education records. Suitable for parents, front-desk staff, and general viewers.</field>
+        </record>
+
+        <!-- Teacher (implies User) -->
+        <record id="education_group_teacher" model="res.groups">
+            <field name="name">Teacher</field>
+            <field name="category_id" ref="module_category_education"/>
+            <field name="implied_ids" eval="[(4, ref('education_group_user'))]"/>
+            <field name="comment">Read, create, and write access. Teachers can manage attendance, grades, homework, and evaluations.</field>
+        </record>
+
+        <!-- Education Manager (implies Teacher) -->
+        <record id="education_group_manager" model="res.groups">
+            <field name="name">Education Manager</field>
+            <field name="category_id" ref="module_category_education"/>
+            <field name="implied_ids" eval="[(4, ref('education_group_teacher'))]"/>
+            <field name="comment">Full CRUD access including delete. Managers oversee departments, billing, admissions, and reporting.</field>
+        </record>
+
+        <!-- Education Administrator (implies Manager) -->
+        <record id="education_group_admin" model="res.groups">
+            <field name="name">Education Administrator</field>
+            <field name="category_id" ref="module_category_education"/>
+            <field name="implied_ids" eval="[(4, ref('education_group_manager'))]"/>
+            <field name="comment">Unrestricted access to all education records across all branches. Can configure system settings, security, and master data.</field>
+        </record>
+
+    </data>
+
+    <data noupdate="1">
+
+        <!-- ============================================================ -->
+        <!-- Record Rules - Branch-Based Multi-Company Access              -->
+        <!-- ============================================================ -->
+
+        <!-- Branch Rule: Education User - see own branch only -->
+        <record id="education_rule_branch_user" model="ir.rule">
+            <field name="name">Education: User Branch Access</field>
+            <field name="model_id" ref="model_education_branch"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Branch Rule: Manager - manage own branch -->
+        <record id="education_rule_branch_manager" model="ir.rule">
+            <field name="name">Education: Manager Branch Access</field>
+            <field name="model_id" ref="model_education_branch"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Branch Rule: Admin - unrestricted across all branches -->
+        <record id="education_rule_branch_admin" model="ir.rule">
+            <field name="name">Education: Admin Unrestricted Branch Access</field>
+            <field name="model_id" ref="model_education_branch"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('education_group_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Student Rule: User - see students in own branch -->
+        <record id="education_rule_student_user" model="ir.rule">
+            <field name="name">Education: User Student Branch Access</field>
+            <field name="model_id" ref="model_education_student"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Student Rule: Teacher - manage students in own branch -->
+        <record id="education_rule_student_teacher" model="ir.rule">
+            <field name="name">Education: Teacher Student Branch Access</field>
+            <field name="model_id" ref="model_education_student"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_teacher'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Student Rule: Admin - unrestricted -->
+        <record id="education_rule_student_admin" model="ir.rule">
+            <field name="name">Education: Admin Unrestricted Student Access</field>
+            <field name="model_id" ref="model_education_student"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('education_group_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Employee Rule: User - see employees in own branch -->
+        <record id="education_rule_employee_user" model="ir.rule">
+            <field name="name">Education: User Employee Branch Access</field>
+            <field name="model_id" ref="model_education_employee"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Employee Rule: Manager - manage employees in own branch -->
+        <record id="education_rule_employee_manager" model="ir.rule">
+            <field name="name">Education: Manager Employee Branch Access</field>
+            <field name="model_id" ref="model_education_employee"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Employee Rule: Admin - unrestricted -->
+        <record id="education_rule_employee_admin" model="ir.rule">
+            <field name="name">Education: Admin Unrestricted Employee Access</field>
+            <field name="model_id" ref="model_education_employee"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('education_group_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Attendance Rule: User - see attendance in own branch -->
+        <record id="education_rule_attendance_user" model="ir.rule">
+            <field name="name">Education: User Attendance Branch Access</field>
+            <field name="model_id" ref="model_education_attendance"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Attendance Rule: Teacher - manage attendance in own branch -->
+        <record id="education_rule_attendance_teacher" model="ir.rule">
+            <field name="name">Education: Teacher Attendance Branch Access</field>
+            <field name="model_id" ref="model_education_attendance"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_teacher'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Attendance Rule: Admin - unrestricted -->
+        <record id="education_rule_attendance_admin" model="ir.rule">
+            <field name="name">Education: Admin Unrestricted Attendance Access</field>
+            <field name="model_id" ref="model_education_attendance"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('education_group_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Payment Rule: User - see payments in own branch -->
+        <record id="education_rule_payment_user" model="ir.rule">
+            <field name="name">Education: User Payment Branch Access</field>
+            <field name="model_id" ref="model_education_payment"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Payment Rule: Manager - manage payments in own branch -->
+        <record id="education_rule_payment_manager" model="ir.rule">
+            <field name="name">Education: Manager Payment Branch Access</field>
+            <field name="model_id" ref="model_education_payment"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Payment Rule: Admin - unrestricted -->
+        <record id="education_rule_payment_admin" model="ir.rule">
+            <field name="name">Education: Admin Unrestricted Payment Access</field>
+            <field name="model_id" ref="model_education_payment"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('education_group_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Treasury Rule: Manager - manage treasury in own branch -->
+        <record id="education_rule_treasury_manager" model="ir.rule">
+            <field name="name">Education: Manager Treasury Branch Access</field>
+            <field name="model_id" ref="model_education_treasury"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Treasury Rule: Admin - unrestricted -->
+        <record id="education_rule_treasury_admin" model="ir.rule">
+            <field name="name">Education: Admin Unrestricted Treasury Access</field>
+            <field name="model_id" ref="model_education_treasury"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('education_group_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Admission Rule: User - see admissions in own branch -->
+        <record id="education_rule_admission_user" model="ir.rule">
+            <field name="name">Education: User Admission Branch Access</field>
+            <field name="model_id" ref="model_education_admission_application"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Admission Rule: Teacher - manage admissions in own branch -->
+        <record id="education_rule_admission_teacher" model="ir.rule">
+            <field name="name">Education: Teacher Admission Branch Access</field>
+            <field name="model_id" ref="model_education_admission_application"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_teacher'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Admission Rule: Admin - unrestricted -->
+        <record id="education_rule_admission_admin" model="ir.rule">
+            <field name="name">Education: Admin Unrestricted Admission Access</field>
+            <field name="model_id" ref="model_education_admission_application"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('education_group_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Kids Area Booking Rule: User - see bookings in own branch -->
+        <record id="education_rule_kids_booking_user" model="ir.rule">
+            <field name="name">Education: User Kids Area Booking Branch Access</field>
+            <field name="model_id" ref="model_education_kids_area_booking"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Kids Area Booking Rule: Teacher - manage bookings in own branch -->
+        <record id="education_rule_kids_booking_teacher" model="ir.rule">
+            <field name="name">Education: Teacher Kids Area Booking Branch Access</field>
+            <field name="model_id" ref="model_education_kids_area_booking"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_teacher'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Kids Area Booking Rule: Admin - unrestricted -->
+        <record id="education_rule_kids_booking_admin" model="ir.rule">
+            <field name="name">Education: Admin Unrestricted Kids Area Booking Access</field>
+            <field name="model_id" ref="model_education_kids_area_booking"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('education_group_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Inventory Rule: User - see inventory in own branch -->
+        <record id="education_rule_inventory_user" model="ir.rule">
+            <field name="name">Education: User Inventory Branch Access</field>
+            <field name="model_id" ref="model_education_inventory_item"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Inventory Rule: Manager - manage inventory in own branch -->
+        <record id="education_rule_inventory_manager" model="ir.rule">
+            <field name="name">Education: Manager Inventory Branch Access</field>
+            <field name="model_id" ref="model_education_inventory_item"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Inventory Rule: Admin - unrestricted -->
+        <record id="education_rule_inventory_admin" model="ir.rule">
+            <field name="name">Education: Admin Unrestricted Inventory Access</field>
+            <field name="model_id" ref="model_education_inventory_item"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('education_group_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Transportation Rule: User - see transportation in own branch -->
+        <record id="education_rule_transportation_user" model="ir.rule">
+            <field name="name">Education: User Transportation Branch Access</field>
+            <field name="model_id" ref="model_education_transportation_subscription"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Transportation Rule: Manager - manage transportation in own branch -->
+        <record id="education_rule_transportation_manager" model="ir.rule">
+            <field name="name">Education: Manager Transportation Branch Access</field>
+            <field name="model_id" ref="model_education_transportation_subscription"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Transportation Rule: Admin - unrestricted -->
+        <record id="education_rule_transportation_admin" model="ir.rule">
+            <field name="name">Education: Admin Unrestricted Transportation Access</field>
+            <field name="model_id" ref="model_education_transportation_subscription"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('education_group_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Announcement Rule: User - see announcements in own branch -->
+        <record id="education_rule_announcement_user" model="ir.rule">
+            <field name="name">Education: User Announcement Branch Access</field>
+            <field name="model_id" ref="model_education_announcement"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Announcement Rule: Manager - manage announcements in own branch -->
+        <record id="education_rule_announcement_manager" model="ir.rule">
+            <field name="name">Education: Manager Announcement Branch Access</field>
+            <field name="model_id" ref="model_education_announcement"/>
+            <field name="domain_force">[('branch_id.company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('education_group_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Announcement Rule: Admin - unrestricted -->
+        <record id="education_rule_announcement_admin" model="ir.rule">
+            <field name="name">Education: Admin Unrestricted Announcement Access</field>
+            <field name="model_id" ref="model_education_announcement"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('education_group_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

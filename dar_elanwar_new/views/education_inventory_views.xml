@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==================== -->
+    <!-- Inventory Category    -->
+    <!-- ==================== -->
+
+    <record id="view_education_inventory_category_form" model="ir.ui.view">
+        <field name="name">education.inventory.category.form</field>
+        <field name="model">education.inventory.category</field>
+        <field name="arch" type="xml">
+            <form string="Inventory Category">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Category Name"/>
+                        </h1>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_education_inventory_category_tree" model="ir.ui.view">
+        <field name="name">education.inventory.category.tree</field>
+        <field name="model">education.inventory.category</field>
+        <field name="arch" type="xml">
+            <tree string="Inventory Categories">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_education_inventory_category" model="ir.actions.act_window">
+        <field name="name">Inventory Categories</field>
+        <field name="res_model">education.inventory.category</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first inventory category!
+            </p>
+        </field>
+    </record>
+
+    <!-- ==================== -->
+    <!-- Inventory Item        -->
+    <!-- ==================== -->
+
+    <record id="view_education_inventory_item_form" model="ir.ui.view">
+        <field name="name">education.inventory.item.form</field>
+        <field name="model">education.inventory.item</field>
+        <field name="arch" type="xml">
+            <form string="Inventory Item">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Item Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="category_id"/>
+                            <field name="branch_id"/>
+                            <field name="location"/>
+                        </group>
+                        <group>
+                            <field name="quantity"/>
+                            <field name="unit"/>
+                            <field name="min_quantity"/>
+                            <field name="unit_price"/>
+                            <field name="total_value"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Stock Movements">
+                            <field name="movement_ids">
+                                <tree string="Movements">
+                                    <field name="date" optional="show"/>
+                                    <field name="movement_type" optional="show"/>
+                                    <field name="quantity" optional="show"/>
+                                    <field name="reference" optional="show"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_education_inventory_item_tree" model="ir.ui.view">
+        <field name="name">education.inventory.item.tree</field>
+        <field name="model">education.inventory.item</field>
+        <field name="arch" type="xml">
+            <tree string="Inventory Items">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="quantity"/>
+                <field name="unit_price"/>
+                <field name="total_value"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_education_inventory_item" model="ir.actions.act_window">
+        <field name="name">Inventory Items</field>
+        <field name="res_model">education.inventory.item</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add your first inventory item!
+            </p>
+        </field>
+    </record>
+
+    <!-- ==================== -->
+    <!-- Inventory Request     -->
+    <!-- ==================== -->
+
+    <record id="view_education_inventory_request_form" model="ir.ui.view">
+        <field name="name">education.inventory.request.form</field>
+        <field name="model">education.inventory.request</field>
+        <field name="arch" type="xml">
+            <form string="Inventory Request">
+                <header>
+                    <button name="action_submit" string="Submit" type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Approve" type="object"
+                            class="btn-primary"
+                            invisible="state != 'submitted'"/>
+                    <button name="action_fulfill" string="Fulfill" type="object"
+                            class="btn-primary"
+                            invisible="state != 'approved'"/>
+                    <button name="action_reject" string="Reject" type="object"
+                            class="btn-danger"
+                            invisible="state not in ('submitted', 'approved')"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('fulfilled', 'cancelled')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,approved,fulfilled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Request Reference"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="department_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Request Lines">
+                            <field name="line_ids">
+                                <tree string="Request Lines" editable="bottom">
+                                    <field name="item_id"/>
+                                    <field name="quantity"/>
+                                    <field name="approved_quantity"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_education_inventory_request_tree" model="ir.ui.view">
+        <field name="name">education.inventory.request.tree</field>
+        <field name="model">education.inventory.request</field>
+        <field name="arch" type="xml">
+            <tree string="Inventory Requests">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="department_id"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_education_inventory_request" model="ir.actions.act_window">
+        <field name="name">Inventory Requests</field>
+        <field name="res_model">education.inventory.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first inventory request!
+            </p>
+        </field>
+    </record>
+
+</odoo>

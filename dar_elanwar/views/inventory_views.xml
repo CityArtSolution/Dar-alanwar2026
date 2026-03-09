@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========================== -->
+    <!-- PRODUCT CATEGORY VIEWS -->
+    <!-- ========================== -->
+
+    <record id="view_education_product_category_tree" model="ir.ui.view">
+        <field name="name">education.product.category.tree</field>
+        <field name="model">education.product.category</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="product_count"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_education_product_category_form" model="ir.ui.view">
+        <field name="name">education.product.category.form</field>
+        <field name="model">education.product.category</field>
+        <field name="arch" type="xml">
+            <form string="Product Category">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_products" type="object" class="oe_stat_button" icon="fa-cubes">
+                            <field name="product_count" widget="statinfo" string="Products"/>
+                        </button>
+                        <button name="action_view_stock_in" type="object" class="oe_stat_button" icon="fa-arrow-down">
+                            <field name="total_quantity" widget="statinfo" string="Qty On Hand"/>
+                        </button>
+                        <button name="action_view_stock_out" type="object" class="oe_stat_button" icon="fa-arrow-up">
+                            <field name="total_value" widget="statinfo" string="Total Value"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="product_count"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_education_product_category" model="ir.actions.act_window">
+        <field name="name">Product Categories</field>
+        <field name="res_model">education.product.category</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- PRODUCT VIEWS -->
+    <!-- ========================== -->
+
+    <record id="view_education_product_tree" model="ir.ui.view">
+        <field name="name">education.product.tree</field>
+        <field name="model">education.product</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="quantity &lt; min_quantity">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="category_id"/>
+                <field name="purchase_price"/>
+                <field name="sale_price"/>
+                <field name="quantity"/>
+                <field name="min_quantity"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_education_product_form" model="ir.ui.view">
+        <field name="name">education.product.form</field>
+        <field name="model">education.product</field>
+        <field name="arch" type="xml">
+            <form string="Product">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_stock_in" type="object" class="oe_stat_button" icon="fa-arrow-down">
+                            <field name="stock_in_count" widget="statinfo" string="Stock In"/>
+                        </button>
+                        <button name="action_view_stock_out" type="object" class="oe_stat_button" icon="fa-arrow-up">
+                            <field name="stock_out_count" widget="statinfo" string="Stock Out"/>
+                        </button>
+                        <button name="action_view_category" type="object" class="oe_stat_button" icon="fa-folder">
+                            <span class="o_stat_text">Category</span>
+                        </button>
+                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                            <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+                        </button>
+                    </div>
+                    <field name="image" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Product Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="category_id"/>
+                            <field name="unit"/>
+                        </group>
+                        <group>
+                            <field name="purchase_price"/>
+                            <field name="sale_price"/>
+                            <field name="quantity"/>
+                            <field name="min_quantity"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description" placeholder="Product description..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_education_product_search" model="ir.ui.view">
+        <field name="name">education.product.search</field>
+        <field name="model">education.product</field>
+        <field name="arch" type="xml">
+            <search string="Search Products">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="category_id"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Low Stock" name="low_stock" domain="[('quantity', '&lt;', min_quantity)]"/>
+                <separator/>
+                <group>
+                    <filter string="Category" name="group_category" context="{'group_by': 'category_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_education_product_kanban" model="ir.ui.view">
+        <field name="name">education.product.kanban</field>
+        <field name="model">education.product</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="category_id"/>
+                <field name="quantity"/>
+                <field name="sale_price"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_title">
+                                    <strong>[<field name="code"/>] <field name="name"/></strong>
+                                </div>
+                                <div>
+                                    Category: <field name="category_id"/>
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        Qty: <field name="quantity"/>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <field name="sale_price"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_education_product" model="ir.actions.act_window">
+        <field name="name">Products</field>
+        <field name="res_model">education.product</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- STOCK IN VIEWS -->
+    <!-- ========================== -->
+
+    <record id="view_education_stock_in_tree" model="ir.ui.view">
+        <field name="name">education.stock.in.tree</field>
+        <field name="model">education.stock.in</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'confirmed'" decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="supplier"/>
+                <field name="total_amount"/>
+                <field name="responsible_id"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_education_stock_in_form" model="ir.ui.view">
+        <field name="name">education.stock.in.form</field>
+        <field name="model">education.stock.in</field>
+        <field name="arch" type="xml">
+            <form string="Stock In">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state != 'draft'"/>
+                    <button name="action_reset" string="Reset to Draft" type="object" invisible="state not in ['confirmed', 'cancelled']"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_lines" type="object" class="oe_stat_button" icon="fa-list">
+                            <field name="line_count" widget="statinfo" string="Lines"/>
+                        </button>
+                        <button name="action_view_products" type="object" class="oe_stat_button" icon="fa-cubes">
+                            <field name="product_count" widget="statinfo" string="Products"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="supplier"/>
+                            <field name="invoice_reference"/>
+                        </group>
+                        <group>
+                            <field name="responsible_id"/>
+                            <field name="total_amount"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Lines" name="lines">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="quantity"/>
+                                    <field name="unit_price"/>
+                                    <field name="subtotal"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Additional notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_education_stock_in_search" model="ir.ui.view">
+        <field name="name">education.stock.in.search</field>
+        <field name="model">education.stock.in</field>
+        <field name="arch" type="xml">
+            <search string="Search Stock In">
+                <field name="name"/>
+                <field name="supplier"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <separator/>
+                <group>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_education_stock_in" model="ir.actions.act_window">
+        <field name="name">Stock In</field>
+        <field name="res_model">education.stock.in</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- STOCK OUT VIEWS -->
+    <!-- ========================== -->
+
+    <record id="view_education_stock_out_tree" model="ir.ui.view">
+        <field name="name">education.stock.out.tree</field>
+        <field name="model">education.stock.out</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'confirmed'" decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="recipient"/>
+                <field name="reason"/>
+                <field name="total_amount"/>
+                <field name="responsible_id"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_education_stock_out_form" model="ir.ui.view">
+        <field name="name">education.stock.out.form</field>
+        <field name="model">education.stock.out</field>
+        <field name="arch" type="xml">
+            <form string="Stock Out">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state != 'draft'"/>
+                    <button name="action_reset" string="Reset to Draft" type="object" invisible="state not in ['confirmed', 'cancelled']"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_lines" type="object" class="oe_stat_button" icon="fa-list">
+                            <field name="line_count" widget="statinfo" string="Lines"/>
+                        </button>
+                        <button name="action_view_products" type="object" class="oe_stat_button" icon="fa-cubes">
+                            <field name="product_count" widget="statinfo" string="Products"/>
+                        </button>
+                        <button name="action_view_student" type="object" class="oe_stat_button" icon="fa-graduation-cap" invisible="not student_id">
+                            <span class="o_stat_text">Student</span>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="recipient"/>
+                            <field name="reason"/>
+                            <field name="student_id"/>
+                        </group>
+                        <group>
+                            <field name="responsible_id"/>
+                            <field name="total_amount"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Lines" name="lines">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="quantity"/>
+                                    <field name="unit_price"/>
+                                    <field name="subtotal"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Additional notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_education_stock_out_search" model="ir.ui.view">
+        <field name="name">education.stock.out.search</field>
+        <field name="model">education.stock.out</field>
+        <field name="arch" type="xml">
+            <search string="Search Stock Out">
+                <field name="name"/>
+                <field name="recipient"/>
+                <field name="student_id"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <separator/>
+                <group>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_education_stock_out" model="ir.actions.act_window">
+        <field name="name">Stock Out</field>
+        <field name="res_model">education.stock.out</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

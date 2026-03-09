@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==================== Form View ==================== -->
+    <record id="view_education_reminder_form" model="ir.ui.view">
+        <field name="name">education.reminder.form</field>
+        <field name="model">education.reminder</field>
+        <field name="arch" type="xml">
+            <form string="Reminder">
+                <header>
+                    <field name="is_done" widget="boolean_toggle"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="title"/>
+                        <h1>
+                            <field name="title" placeholder="Reminder Title"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="time" widget="float_time"/>
+                        </group>
+                        <group>
+                            <field name="priority" widget="priority"/>
+                            <field name="user_id"/>
+                        </group>
+                    </group>
+                    <separator string="Description"/>
+                    <field name="description" placeholder="Additional details..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ==================== Tree View ==================== -->
+    <record id="view_education_reminder_tree" model="ir.ui.view">
+        <field name="name">education.reminder.tree</field>
+        <field name="model">education.reminder</field>
+        <field name="arch" type="xml">
+            <tree string="Reminders" decoration-muted="is_done"
+                  decoration-danger="priority == 'urgent' and not is_done"
+                  decoration-warning="priority == 'high' and not is_done">
+                <field name="title"/>
+                <field name="date"/>
+                <field name="time" widget="float_time"/>
+                <field name="priority"/>
+                <field name="user_id"/>
+                <field name="is_done"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ==================== Search View ==================== -->
+    <record id="view_education_reminder_search" model="ir.ui.view">
+        <field name="name">education.reminder.search</field>
+        <field name="model">education.reminder</field>
+        <field name="arch" type="xml">
+            <search string="Search Reminders">
+                <field name="title"/>
+                <field name="user_id"/>
+                <separator/>
+                <filter string="Pending" name="pending" domain="[('is_done', '=', False)]"/>
+                <filter string="Done" name="done" domain="[('is_done', '=', True)]"/>
+                <filter string="Today" name="today"
+                        domain="[('date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter string="Urgent" name="urgent" domain="[('priority', '=', 'urgent')]"/>
+                <filter string="High" name="high" domain="[('priority', '=', 'high')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Priority" name="group_priority" context="{'group_by': 'priority'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
+                    <filter string="Assigned To" name="group_user" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ==================== Action ==================== -->
+    <record id="action_education_reminder" model="ir.actions.act_window">
+        <field name="name">Reminders</field>
+        <field name="res_model">education.reminder</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_education_reminder_search"/>
+        <field name="context">{'search_default_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new reminder
+            </p>
+            <p>
+                Reminders help you keep track of important tasks and
+                deadlines within your institution.
+            </p>
+        </field>
+    </record>
+
+</odoo>

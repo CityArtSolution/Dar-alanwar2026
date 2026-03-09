@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==================== Form View ==================== -->
+    <record id="view_education_academic_year_form" model="ir.ui.view">
+        <field name="name">education.academic.year.form</field>
+        <field name="model">education.academic.year</field>
+        <field name="arch" type="xml">
+            <form string="Academic Year">
+                <sheet>
+                    <widget name="web_ribbon" title="Current Year"
+                            invisible="not is_current"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. 2025-2026"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                        </group>
+                        <group>
+                            <field name="is_current"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ==================== Tree View ==================== -->
+    <record id="view_education_academic_year_tree" model="ir.ui.view">
+        <field name="name">education.academic.year.tree</field>
+        <field name="model">education.academic.year</field>
+        <field name="arch" type="xml">
+            <tree string="Academic Years" decoration-bf="is_current">
+                <field name="name"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="is_current"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ==================== Action ==================== -->
+    <record id="action_education_academic_year" model="ir.actions.act_window">
+        <field name="name">Academic Years</field>
+        <field name="res_model">education.academic.year</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new academic year
+            </p>
+            <p>
+                Define academic years with start and end dates. Only one
+                year can be marked as the current year at a time.
+            </p>
+        </field>
+    </record>
+
+</odoo>

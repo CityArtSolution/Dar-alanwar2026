@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!--                    PARENT FORM VIEW                          -->
+    <!-- ============================================================ -->
+    <record id="view_education_parent_form" model="ir.ui.view">
+        <field name="name">education.parent.form</field>
+        <field name="model">education.parent</field>
+        <field name="arch" type="xml">
+            <form string="Parent / Guardian">
+                <header>
+                    <!-- Placeholder for any workflow buttons if needed -->
+                </header>
+
+                <!-- Smart Buttons -->
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_children_invoices"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-file-text-o">
+                        <field name="children_invoice_count"
+                               string="Children Invoices"
+                               widget="statinfo"/>
+                    </button>
+                    <button name="action_view_children_balance"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-money">
+                        <field name="children_balance_due"
+                               string="Balance Due"
+                               widget="statinfo"/>
+                    </button>
+                    <button name="action_view_children_installments"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-list">
+                        <field name="children_installment_count"
+                               string="Installments"
+                               widget="statinfo"/>
+                    </button>
+                    <button name="action_view_children_attendance"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-calendar-check-o">
+                        <field name="children_attendance_pct"
+                               string="Attendance"
+                               widget="statinfo"/>
+                    </button>
+                </div>
+
+                <sheet>
+                    <!-- Top Section: Photo + Key Fields -->
+                    <group>
+                        <field name="photo" widget="image" class="oe_avatar"
+                               options="{'size': [128, 128]}"/>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name" placeholder="Parent / Guardian Name"/>
+                            </h1>
+                        </div>
+                    </group>
+
+                    <!-- Contact Info -->
+                    <group col="2">
+                        <group string="Contact Information">
+                            <field name="relation"/>
+                            <field name="phone" widget="phone"/>
+                            <field name="mobile" widget="phone"/>
+                            <field name="email" widget="email"/>
+                        </group>
+                        <group string="Identification">
+                            <field name="id_number"/>
+                            <field name="nationality"/>
+                        </group>
+                    </group>
+
+                    <!-- Personal / Professional Info -->
+                    <group col="2">
+                        <group string="Professional Information">
+                            <field name="job"/>
+                            <field name="workplace"/>
+                            <field name="job_number"/>
+                        </group>
+                        <group string="Other Details">
+                            <field name="education_level"/>
+                            <field name="marital_status"/>
+                        </group>
+                    </group>
+
+                    <!-- Mother Information -->
+                    <group string="Mother Information" col="2">
+                        <group>
+                            <field name="mother_name"/>
+                            <field name="mother_phone" widget="phone"/>
+                        </group>
+                        <group>
+                            <field name="mother_national_id"/>
+                            <field name="mother_education"/>
+                        </group>
+                    </group>
+
+                    <!-- Notebook Tabs -->
+                    <notebook>
+                        <!-- Children Tab -->
+                        <page string="Children" name="children">
+                            <field name="children_ids" readonly="1">
+                                <tree>
+                                    <field name="code"/>
+                                    <field name="name"/>
+                                    <field name="arabic_name"/>
+                                    <field name="class_id"/>
+                                    <field name="department_id"/>
+                                    <field name="state"
+                                           widget="badge"
+                                           decoration-success="state == 'enrolled'"
+                                           decoration-danger="state == 'archived'"
+                                           decoration-warning="state == 'suspended'"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <!-- Children Financial Plans Tab -->
+                        <page string="Children Financial Plans" name="children_financial">
+                            <field name="children_subscription_ids" readonly="1">
+                                <tree>
+                                    <field name="student_id"/>
+                                    <field name="type_id"/>
+                                    <field name="status"/>
+                                    <field name="total_amount" sum="Total"/>
+                                    <field name="discount_amount" sum="Discount"/>
+                                    <field name="net_amount" sum="Net"/>
+                                    <field name="paid_amount" sum="Paid"/>
+                                    <field name="remaining_amount" sum="Remaining"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <!-- Messages Tab -->
+                        <page string="Messages" name="messages">
+                            <field name="message_ids" readonly="1">
+                                <tree>
+                                    <field name="date"/>
+                                    <field name="subject"/>
+                                    <field name="body" widget="html"/>
+                                    <field name="channel"/>
+                                    <field name="status"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <!-- Chatter -->
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!--                    PARENT LIST VIEW                          -->
+    <!-- ============================================================ -->
+    <record id="view_education_parent_tree" model="ir.ui.view">
+        <field name="name">education.parent.tree</field>
+        <field name="model">education.parent</field>
+        <field name="arch" type="xml">
+            <tree string="Parents / Guardians" multi_edit="1">
+                <field name="name"/>
+                <field name="relation"/>
+                <field name="phone" widget="phone"/>
+                <field name="email" widget="email"/>
+                <field name="children_count"/>
+                <field name="children_balance_due"
+                       widget="monetary"
+                       string="Balance Due"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!--                    PARENT SEARCH VIEW                        -->
+    <!-- ============================================================ -->
+    <record id="view_education_parent_search" model="ir.ui.view">
+        <field name="name">education.parent.search</field>
+        <field name="model">education.parent</field>
+        <field name="arch" type="xml">
+            <search string="Search Parents / Guardians">
+                <field name="name"
+                       string="Parent"
+                       filter_domain="['|', ('name', 'ilike', self), ('phone', 'ilike', self)]"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <separator/>
+                <filter name="filter_father"
+                        string="Father"
+                        domain="[('relation', '=', 'father')]"/>
+                <filter name="filter_mother"
+                        string="Mother"
+                        domain="[('relation', '=', 'mother')]"/>
+                <filter name="filter_guardian"
+                        string="Guardian"
+                        domain="[('relation', '=', 'guardian')]"/>
+                <filter name="filter_other"
+                        string="Other"
+                        domain="[('relation', '=', 'other')]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="group_relation"
+                            string="Relation"
+                            context="{'group_by': 'relation'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!--                    PARENT ACTION                             -->
+    <!-- ============================================================ -->
+    <record id="action_education_parent" model="ir.actions.act_window">
+        <field name="name">Parents / Guardians</field>
+        <field name="res_model">education.parent</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_education_parent_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new parent or guardian record
+            </p>
+            <p>
+                Manage parent and guardian information, track their children's
+                academic progress and financial obligations.
+            </p>
+        </field>
+    </record>
+
+</odoo>

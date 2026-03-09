@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==================== Form View ==================== -->
+    <record id="view_education_class_form" model="ir.ui.view">
+        <field name="name">education.class.form</field>
+        <field name="model">education.class</field>
+        <field name="arch" type="xml">
+            <form string="Class">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-users" type="object"
+                                name="action_view_students" string="Students">
+                            <field name="student_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Class Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="department_id"/>
+                            <field name="level_id" domain="[('department_id', '=', department_id)]"/>
+                            <field name="schedule_id"/>
+                        </group>
+                        <group>
+                            <field name="capacity"/>
+                            <field name="teacher_id"/>
+                            <field name="room"/>
+                            <field name="available_seats"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Students" name="students">
+                            <field name="student_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="student_code"/>
+                                    <field name="state"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ==================== Tree View ==================== -->
+    <record id="view_education_class_tree" model="ir.ui.view">
+        <field name="name">education.class.tree</field>
+        <field name="model">education.class</field>
+        <field name="arch" type="xml">
+            <tree string="Classes" decoration-warning="available_seats &lt;= 3"
+                  decoration-danger="available_seats &lt;= 0">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="department_id"/>
+                <field name="level_id"/>
+                <field name="teacher_id"/>
+                <field name="student_count"/>
+                <field name="available_seats"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ==================== Search View ==================== -->
+    <record id="view_education_class_search" model="ir.ui.view">
+        <field name="name">education.class.search</field>
+        <field name="model">education.class</field>
+        <field name="arch" type="xml">
+            <search string="Search Classes">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="department_id"/>
+                <field name="level_id"/>
+                <field name="teacher_id"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
+                    <filter string="Level" name="group_level" context="{'group_by': 'level_id'}"/>
+                    <filter string="Teacher" name="group_teacher" context="{'group_by': 'teacher_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ==================== Action ==================== -->
+    <record id="action_education_class" model="ir.actions.act_window">
+        <field name="name">Classes</field>
+        <field name="res_model">education.class</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_education_class_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new class
+            </p>
+            <p>
+                Classes are the individual classrooms or groups where students
+                are enrolled and taught by a teacher.
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========================== -->
+    <!-- MESSAGE TEMPLATE VIEWS -->
+    <!-- ========================== -->
+
+    <record id="view_education_message_template_tree" model="ir.ui.view">
+        <field name="name">education.message.template.tree</field>
+        <field name="model">education.message.template</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="subject"/>
+                <field name="trigger_type"/>
+                <field name="is_email"/>
+                <field name="is_sms"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_education_message_template_form" model="ir.ui.view">
+        <field name="name">education.message.template.form</field>
+        <field name="model">education.message.template</field>
+        <field name="arch" type="xml">
+            <form string="Message Template">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_messages" type="object" class="oe_stat_button" icon="fa-envelope">
+                            <field name="message_count" widget="statinfo" string="Messages"/>
+                        </button>
+                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                            <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Template Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="subject"/>
+                            <field name="trigger_type"/>
+                        </group>
+                        <group>
+                            <field name="is_email"/>
+                            <field name="is_sms"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="body"/>
+                    </group>
+                    <group>
+                        <field name="notes" placeholder="Notes..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_education_message_template" model="ir.actions.act_window">
+        <field name="name">Message Templates</field>
+        <field name="res_model">education.message.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- MESSAGE VIEWS -->
+    <!-- ========================== -->
+
+    <record id="view_education_message_tree" model="ir.ui.view">
+        <field name="name">education.message.tree</field>
+        <field name="model">education.message</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'sent'" decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="subject"/>
+                <field name="recipient_type"/>
+                <field name="recipient_count"/>
+                <field name="sent_count"/>
+                <field name="sent_date"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_education_message_form" model="ir.ui.view">
+        <field name="name">education.message.form</field>
+        <field name="model">education.message</field>
+        <field name="arch" type="xml">
+            <form string="Message">
+                <header>
+                    <button name="action_send" string="Send" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state not in ['draft', 'scheduled']"/>
+                    <button name="action_reset" string="Reset to Draft" type="object" invisible="state not in ['sent', 'cancelled']"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_students" type="object" class="oe_stat_button" icon="fa-graduation-cap">
+                            <field name="recipient_count" widget="statinfo" string="Recipients"/>
+                        </button>
+                        <button name="action_view_logs" type="object" class="oe_stat_button" icon="fa-list" invisible="state != 'sent'">
+                            <field name="log_count" widget="statinfo" string="Logs"/>
+                        </button>
+                        <button name="action_view_failed" type="object" class="oe_stat_button" icon="fa-exclamation-triangle" invisible="state != 'sent' or failed_count == 0">
+                            <field name="failed_count" widget="statinfo" string="Failed"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="template_id" readonly="state != 'draft'"/>
+                            <field name="recipient_type" readonly="state != 'draft'"/>
+                            <field name="department_id" readonly="state != 'draft'" invisible="recipient_type not in ['department', 'class']"/>
+                            <field name="class_id" readonly="state != 'draft'" invisible="recipient_type != 'class'"/>
+                        </group>
+                        <group>
+                            <field name="recipient_count"/>
+                            <field name="sent_count" invisible="state != 'sent'"/>
+                            <field name="scheduled_date" invisible="state != 'scheduled'"/>
+                            <field name="sent_date" invisible="state != 'sent'"/>
+                            <field name="created_by"/>
+                        </group>
+                    </group>
+                    <group invisible="recipient_type != 'individual'">
+                        <field name="student_ids" widget="many2many_tags" readonly="state != 'draft'"/>
+                    </group>
+                    <group>
+                        <field name="subject" readonly="state != 'draft'"/>
+                    </group>
+                    <group>
+                        <field name="body" readonly="state != 'draft'"/>
+                    </group>
+                    <notebook invisible="state != 'sent'">
+                        <page string="Email Logs" name="logs">
+                            <field name="log_ids">
+                                <list>
+                                    <field name="student_id"/>
+                                    <field name="email"/>
+                                    <field name="sent_date"/>
+                                    <field name="status" widget="badge"/>
+                                    <field name="error_message"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_education_message_search" model="ir.ui.view">
+        <field name="name">education.message.search</field>
+        <field name="model">education.message</field>
+        <field name="arch" type="xml">
+            <search string="Search Messages">
+                <field name="name"/>
+                <field name="subject"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Sent" name="sent" domain="[('state', '=', 'sent')]"/>
+                <separator/>
+                <group>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Recipient Type" name="group_recipient" context="{'group_by': 'recipient_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_education_message" model="ir.actions.act_window">
+        <field name="name">Messages</field>
+        <field name="res_model">education.message</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ========================== -->
+    <!-- EMAIL LOG VIEWS -->
+    <!-- ========================== -->
+
+    <record id="view_education_email_log_tree" model="ir.ui.view">
+        <field name="name">education.email.log.tree</field>
+        <field name="model">education.email.log</field>
+        <field name="arch" type="xml">
+            <list decoration-success="status == 'sent'" decoration-danger="status == 'failed'">
+                <field name="message_id"/>
+                <field name="student_id"/>
+                <field name="email"/>
+                <field name="sent_date"/>
+                <field name="status" widget="badge"/>
+                <field name="error_message"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_education_email_log_search" model="ir.ui.view">
+        <field name="name">education.email.log.search</field>
+        <field name="model">education.email.log</field>
+        <field name="arch" type="xml">
+            <search string="Search Email Logs">
+                <field name="student_id"/>
+                <field name="message_id"/>
+                <filter string="Sent" name="sent" domain="[('status', '=', 'sent')]"/>
+                <filter string="Failed" name="failed" domain="[('status', '=', 'failed')]"/>
+                <filter string="Pending" name="pending" domain="[('status', '=', 'pending')]"/>
+                <group>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="Message" name="group_message" context="{'group_by': 'message_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_education_email_log" model="ir.actions.act_window">
+        <field name="name">Email Logs</field>
+        <field name="res_model">education.email.log</field>
+        <field name="view_mode">list</field>
+    </record>
+
+</odoo>

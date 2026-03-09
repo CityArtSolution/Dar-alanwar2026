@@ -43,3 +43,6 @@ docker/data/
 # Backups
 server_backup/
 *.backup
+
+# Credentials
+.server-credentials.md

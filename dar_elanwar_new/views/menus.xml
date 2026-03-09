@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Menu -->
+    <menuitem id="menu_education_root"
+              name="Education"
+              web_icon="dar_elanwar,static/description/icon.png"
+              sequence="10"/>
+
+    <!-- Top-Level Menus -->
+    <menuitem id="menu_students" name="Students"
+              parent="menu_education_root" sequence="10"/>
+    <menuitem id="menu_academics" name="Academics"
+              parent="menu_education_root" sequence="20"/>
+    <menuitem id="menu_employees" name="Employees"
+              parent="menu_education_root" sequence="30"/>
+    <menuitem id="menu_attendance_root" name="Attendance"
+              parent="menu_education_root" sequence="40"/>
+    <menuitem id="menu_finance" name="Finance"
+              parent="menu_education_root" sequence="50"/>
+    <menuitem id="menu_admission" name="Admission"
+              parent="menu_education_root" sequence="60"/>
+    <menuitem id="menu_kids_area" name="Kids Area"
+              parent="menu_education_root" sequence="70"/>
+    <menuitem id="menu_content" name="Content"
+              parent="menu_education_root" sequence="80"/>
+    <menuitem id="menu_communication" name="Communication"
+              parent="menu_education_root" sequence="90"/>
+    <menuitem id="menu_reports" name="Reports"
+              parent="menu_education_root" sequence="100"/>
+    <menuitem id="menu_configuration" name="Configuration"
+              parent="menu_education_root" sequence="200"/>
+
+    <!-- Students Sub-menus -->
+    <menuitem id="menu_student_list" name="Students"
+              parent="menu_students" action="action_education_student"
+              sequence="10"/>
+    <menuitem id="menu_parent_list" name="Guardians"
+              parent="menu_students" action="action_education_parent"
+              sequence="20"/>
+
+    <!-- Academics Sub-menus -->
+    <menuitem id="menu_department_list" name="Departments"
+              parent="menu_academics" action="action_education_department"
+              sequence="10"/>
+    <menuitem id="menu_level_list" name="Levels"
+              parent="menu_academics" action="action_education_level"
+              sequence="20"/>
+    <menuitem id="menu_class_list" name="Classes"
+              parent="menu_academics" action="action_education_class"
+              sequence="30"/>
+    <menuitem id="menu_subject_list" name="Subjects"
+              parent="menu_academics" action="action_education_subject"
+              sequence="40"/>
+    <menuitem id="menu_schedule_list" name="Schedules"
+              parent="menu_academics" action="action_education_schedule"
+              sequence="50"/>
+    <menuitem id="menu_homework_list" name="Homework"
+              parent="menu_academics" action="action_education_homework"
+              sequence="60"/>
+    <menuitem id="menu_evaluation" name="Evaluation"
+              parent="menu_academics" sequence="70"/>
+    <menuitem id="menu_eval_template" name="Templates"
+              parent="menu_evaluation" action="action_education_eval_template"
+              sequence="10"/>
+    <menuitem id="menu_eval_goal" name="Goals"
+              parent="menu_evaluation" action="action_education_eval_goal"
+              sequence="20"/>
+    <menuitem id="menu_grade_scale" name="Grade Scales"
+              parent="menu_evaluation" action="action_education_grade_scale"
+              sequence="30"/>
+
+    <!-- Employees Sub-menus -->
+    <menuitem id="menu_employee_list" name="Employees"
+              parent="menu_employees" action="action_education_employee"
+              sequence="10"/>
+    <menuitem id="menu_employee_salary" name="Payroll"
+              parent="menu_employees" action="action_education_employee_salary"
+              sequence="20"/>
+    <menuitem id="menu_employee_attendance" name="Employee Attendance"
+              parent="menu_employees" action="action_education_employee_attendance"
+              sequence="30"/>
+    <menuitem id="menu_employee_loan" name="Loans"
+              parent="menu_employees" action="action_education_employee_loan"
+              sequence="40"/>
+    <menuitem id="menu_employee_category" name="Categories"
+              parent="menu_employees" action="action_education_employee_category"
+              sequence="50"/>
+
+    <!-- Attendance Sub-menus -->
+    <menuitem id="menu_attendance_list" name="Student Attendance"
+              parent="menu_attendance_root" action="action_education_attendance"
+              sequence="10"/>
+
+    <!-- Finance Sub-menus -->
+    <menuitem id="menu_subscription_list" name="Subscriptions"
+              parent="menu_finance" action="action_education_subscription"
+              sequence="10"/>
+    <menuitem id="menu_subscription_type" name="Subscription Types"
+              parent="menu_finance" action="action_education_subscription_type"
+              sequence="20"/>
+    <menuitem id="menu_payment_list" name="Payments"
+              parent="menu_finance" action="action_education_payment"
+              sequence="30"/>
+    <menuitem id="menu_payment_receipt" name="Receipts"
+              parent="menu_finance" action="action_education_payment_receipt"
+              sequence="40"/>
+    <menuitem id="menu_discount_list" name="Discounts"
+              parent="menu_finance" action="action_education_discount"
+              sequence="50"/>
+    <menuitem id="menu_payment_plan" name="Payment Plans"
+              parent="menu_finance" action="action_education_payment_plan"
+              sequence="60"/>
+    <menuitem id="menu_treasury_list" name="Treasury"
+              parent="menu_finance" action="action_education_treasury"
+              sequence="70"/>
+    <menuitem id="menu_expense_list" name="Expenses"
+              parent="menu_finance" action="action_education_expense"
+              sequence="80"/>
+
+    <!-- Admission Sub-menus -->
+    <menuitem id="menu_admission_list" name="Applications"
+              parent="menu_admission" action="action_education_admission"
+              sequence="10"/>
+    <menuitem id="menu_admission_criteria" name="Criteria"
+              parent="menu_admission" action="action_education_admission_criteria"
+              sequence="20"/>
+
+    <!-- Kids Area Sub-menus -->
+    <menuitem id="menu_kids_service" name="Services"
+              parent="menu_kids_area" action="action_kids_area_service"
+              sequence="10"/>
+    <menuitem id="menu_kids_slot" name="Time Slots"
+              parent="menu_kids_area" action="action_kids_area_slot"
+              sequence="20"/>
+    <menuitem id="menu_kids_booking" name="Bookings"
+              parent="menu_kids_area" action="action_kids_area_booking"
+              sequence="30"/>
+    <menuitem id="menu_kids_package" name="Packages"
+              parent="menu_kids_area" action="action_kids_area_package"
+              sequence="40"/>
+
+    <!-- Content Sub-menus -->
+    <menuitem id="menu_content_category" name="Categories"
+              parent="menu_content" action="action_content_category"
+              sequence="10"/>
+    <menuitem id="menu_content_item" name="Content Items"
+              parent="menu_content" action="action_content_item"
+              sequence="20"/>
+    <menuitem id="menu_content_access" name="Access Grants"
+              parent="menu_content" action="action_content_access"
+              sequence="30"/>
+
+    <!-- Communication Sub-menus -->
+    <menuitem id="menu_announcement" name="Announcements"
+              parent="menu_communication" action="action_education_announcement"
+              sequence="10"/>
+    <menuitem id="menu_message" name="Messages"
+              parent="menu_communication" action="action_education_message"
+              sequence="20"/>
+    <menuitem id="menu_support_ticket" name="Support Tickets"
+              parent="menu_communication" action="action_education_support_ticket"
+              sequence="30"/>
+
+    <!-- Reports Sub-menus -->
+    <menuitem id="menu_report_wizard" name="Generate Report"
+              parent="menu_reports" action="action_report_wizard"
+              sequence="10"/>
+
+    <!-- Configuration Sub-menus -->
+    <menuitem id="menu_config_settings" name="Settings"
+              parent="menu_configuration" action="action_education_settings"
+              sequence="10"/>
+    <menuitem id="menu_config_branch" name="Branches"
+              parent="menu_configuration" action="action_education_branch"
+              sequence="20"/>
+    <menuitem id="menu_config_academic_year" name="Academic Years"
+              parent="menu_configuration" action="action_education_academic_year"
+              sequence="30"/>
+    <menuitem id="menu_config_enrollment_source" name="Enrollment Sources"
+              parent="menu_configuration" action="action_education_enrollment_source"
+              sequence="40"/>
+    <menuitem id="menu_config_leave_reason" name="Leave Reasons"
+              parent="menu_configuration" action="action_education_leave_reason"
+              sequence="50"/>
+    <menuitem id="menu_config_city" name="Cities"
+              parent="menu_configuration" action="action_education_city"
+              sequence="60"/>
+
+    <!-- Other Sub-menus under Configuration -->
+    <menuitem id="menu_transportation" name="Transportation"
+              parent="menu_configuration" sequence="100"/>
+    <menuitem id="menu_vehicle" name="Vehicles"
+              parent="menu_transportation" action="action_education_vehicle"
+              sequence="10"/>
+    <menuitem id="menu_route" name="Routes"
+              parent="menu_transportation" action="action_education_route"
+              sequence="20"/>
+
+    <menuitem id="menu_inventory_root" name="Inventory"
+              parent="menu_configuration" sequence="110"/>
+    <menuitem id="menu_inventory_item" name="Items"
+              parent="menu_inventory_root" action="action_education_inventory_item"
+              sequence="10"/>
+    <menuitem id="menu_inventory_category" name="Categories"
+              parent="menu_inventory_root" action="action_education_inventory_category"
+              sequence="20"/>
+    <menuitem id="menu_inventory_request" name="Requests"
+              parent="menu_inventory_root" action="action_education_inventory_request"
+              sequence="30"/>
+
+    <menuitem id="menu_daily_notes" name="Daily Notes"
+              parent="menu_configuration" action="action_education_daily_note"
+              sequence="120"/>
+    <menuitem id="menu_reminders" name="Reminders"
+              parent="menu_configuration" action="action_education_reminder"
+              sequence="130"/>
+</odoo>
