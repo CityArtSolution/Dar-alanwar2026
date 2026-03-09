@@ -14,6 +14,16 @@ def migrate(cr, version):
     """
     _logger.info('Creating portal user accounts for existing guardians...')
 
+    # Ensure unique indexes exist (ORM constraints may not be applied yet)
+    cr.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS dar_portal_user_username_unique
+        ON dar_portal_user (username)
+    """)
+    cr.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS dar_portal_user_partner_unique
+        ON dar_portal_user (partner_id)
+    """)
+
     # Find all guardians with a phone number who don't already have a portal user
     cr.execute("""
         SELECT rp.id, rp.phone, rp.id_number
@@ -30,28 +40,36 @@ def migrate(cr, version):
 
     guardians = cr.fetchall()
     created = 0
+    skipped = 0
 
     for partner_id, phone, id_number in guardians:
         username = phone.strip()
-        # Use id_number as password, fallback to partner ID
         raw_password = id_number if id_number else str(partner_id)
         password_hash = generate_password_hash(raw_password)
 
-        try:
-            cr.execute("""
-                INSERT INTO dar_portal_user
-                    (partner_id, username, password_hash, is_active,
-                     login_count, create_date, write_date, create_uid, write_uid)
-                VALUES
-                    (%s, %s, %s, TRUE, 0, NOW(), NOW(), 1, 1)
-                ON CONFLICT (username) DO NOTHING
-            """, (partner_id, username, password_hash))
-            created += 1
-        except Exception as e:
-            _logger.warning(
-                'Failed to create portal user for partner %s (%s): %s',
-                partner_id, username, e
+        # Check if username already taken (duplicate phone numbers)
+        cr.execute(
+            "SELECT 1 FROM dar_portal_user WHERE username = %s",
+            (username,)
+        )
+        if cr.fetchone():
+            _logger.info(
+                'Skipping partner %s: username %s already exists',
+                partner_id, username
             )
+            skipped += 1
+            continue
 
-    _logger.info('Created %d portal user accounts out of %d guardians.',
-                 created, len(guardians))
+        cr.execute("""
+            INSERT INTO dar_portal_user
+                (partner_id, username, password_hash, is_active,
+                 login_count, create_date, write_date, create_uid, write_uid)
+            VALUES
+                (%s, %s, %s, TRUE, 0, NOW(), NOW(), 1, 1)
+        """, (partner_id, username, password_hash))
+        created += 1
+
+    _logger.info(
+        'Created %d portal user accounts out of %d guardians (%d skipped).',
+        created, len(guardians), skipped
+    )
