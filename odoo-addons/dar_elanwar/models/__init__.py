@@ -83,6 +83,9 @@ from . import education_homework
 from . import education_study_plan
 from . import education_financial_plan
 
+# Phase 15: Portal User Accounts
+from . import dar_portal_user
+
 # Phase 14: New Modules (PRD Enhancements)
 from . import education_discount
 from . import education_admission

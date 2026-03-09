@@ -33,7 +33,7 @@ def error_response(message, status=400, code=None):
     return json_response(body, status=status)
 
 
-def generate_jwt_token(parent_id, email):
+def generate_jwt_token(parent_id, email, portal_user_id=None):
     """Generate a JWT token for a parent."""
     payload = {
         'parent_id': parent_id,
@@ -41,6 +41,8 @@ def generate_jwt_token(parent_id, email):
         'exp': datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS),
         'iat': datetime.utcnow(),
     }
+    if portal_user_id:
+        payload['portal_user_id'] = portal_user_id
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
 
@@ -69,6 +71,16 @@ def jwt_required(func):
         if not payload:
             return error_response('Invalid or expired token', 401,
                                   'TOKEN_INVALID')
+
+        # Check portal user if present in token (new tokens)
+        portal_user_id = payload.get('portal_user_id')
+        if portal_user_id:
+            portal_user = request.env['dar.portal.user'].sudo().browse(portal_user_id)
+            if not portal_user.exists():
+                return error_response('Portal account not found', 401, 'ACCOUNT_NOT_FOUND')
+            if not portal_user.is_active:
+                return error_response('Portal account is disabled', 401, 'ACCOUNT_DISABLED')
+            request.portal_user = portal_user
 
         parent = request.env['res.partner'].sudo().browse(
             payload.get('parent_id'))

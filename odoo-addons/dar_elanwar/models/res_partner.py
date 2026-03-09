@@ -79,6 +79,53 @@ class ResPartner(models.Model):
         string='Mother Education Level',
     )
 
+    # Portal user link
+    portal_user_ids = fields.One2many(
+        'dar.portal.user',
+        'partner_id',
+        string='Portal Users',
+    )
+    has_portal_user = fields.Boolean(
+        string='Has Portal Account',
+        compute='_compute_portal_user',
+        store=True,
+    )
+    portal_user_id = fields.Many2one(
+        'dar.portal.user',
+        string='Portal Account',
+        compute='_compute_portal_user',
+        store=True,
+    )
+
+    @api.depends('portal_user_ids', 'portal_user_ids.is_active')
+    def _compute_portal_user(self):
+        for partner in self:
+            portal_user = partner.portal_user_ids[:1]
+            partner.portal_user_id = portal_user
+            partner.has_portal_user = bool(portal_user)
+
+    def action_view_portal_user(self):
+        """Open existing portal user or create form."""
+        self.ensure_one()
+        if self.portal_user_id:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Portal Account'),
+                'res_model': 'dar.portal.user',
+                'view_mode': 'form',
+                'res_id': self.portal_user_id.id,
+            }
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Create Portal Account'),
+            'res_model': 'dar.portal.user',
+            'view_mode': 'form',
+            'context': {
+                'default_partner_id': self.id,
+                'default_username': self.phone or '',
+            },
+        }
+
     # Related children (now self-referential on res.partner)
     father_student_ids = fields.One2many(
         'res.partner',

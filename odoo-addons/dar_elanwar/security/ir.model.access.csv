@@ -195,3 +195,7 @@ access_education_financial_plan_admin,education.financial.plan.admin,model_educa
 access_education_financial_plan_line_user,education.financial.plan.line.user,model_education_financial_plan_line,group_education_user,1,0,0,0
 access_education_financial_plan_line_accountant,education.financial.plan.line.accountant,model_education_financial_plan_line,group_education_accountant,1,1,1,0
 access_education_financial_plan_line_admin,education.financial.plan.line.admin,model_education_financial_plan_line,group_education_admin,1,1,1,1
+access_dar_portal_user_user,dar.portal.user.user,model_dar_portal_user,group_education_user,1,0,0,0
+access_dar_portal_user_manager,dar.portal.user.manager,model_dar_portal_user,group_education_manager,1,1,1,0
+access_dar_portal_user_admin,dar.portal.user.admin,model_dar_portal_user,group_education_admin,1,1,1,1
+access_dar_portal_user_set_password_wizard_manager,dar.portal.user.set.password.wizard.manager,model_dar_portal_user_set_password_wizard,group_education_manager,1,1,1,0

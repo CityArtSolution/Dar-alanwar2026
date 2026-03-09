@@ -1,4 +1,3 @@
-import hashlib
 import logging
 
 from odoo import http
@@ -17,7 +16,7 @@ class AuthApiController(ApiBaseController):
     @http.route('/api/auth/login', type='http', auth='none',
                 methods=['POST'], csrf=False, cors='*')
     def login(self, **kwargs):
-        """Authenticate a parent and return a JWT token."""
+        """Authenticate a parent via portal user account."""
         data = get_request_data()
         email = data.get('email', '').strip()
         password = data.get('password', '')
@@ -26,30 +25,30 @@ class AuthApiController(ApiBaseController):
         if not password or (not email and not phone):
             return error_response('Email/phone and password are required')
 
-        domain = []
-        if email:
-            domain = [('email', '=', email)]
-        elif phone:
-            domain = ['|', ('phone', '=', phone), ('mobile', '=', phone)]
+        # Look up portal user by username (phone) or by partner email
+        portal_user = None
+        if phone:
+            portal_user = request.env['dar.portal.user'].sudo().search(
+                [('username', '=', phone)], limit=1)
+        elif email:
+            portal_user = request.env['dar.portal.user'].sudo().search(
+                [('partner_id.email', '=', email)], limit=1)
 
-        parent = request.env['res.partner'].sudo().search(
-            [('is_guardian', '=', True)] + domain, limit=1)
-        if not parent:
+        if not portal_user:
             return error_response('Invalid credentials', 401)
 
-        # Verify password (stored as hashed id_number for simplicity)
-        # In production, use proper password hashing
-        expected = hashlib.sha256(
-            (parent.id_number or str(parent.id)).encode()
-        ).hexdigest()
-        provided = hashlib.sha256(password.encode()).hexdigest()
+        if not portal_user.is_active:
+            return error_response('Account is disabled. Contact administration.', 401,
+                                  'ACCOUNT_DISABLED')
 
-        if expected != provided:
-            # Fallback: allow id_number as password for initial setup
-            if password != parent.id_number and password != str(parent.id):
-                return error_response('Invalid credentials', 401)
+        if not portal_user.verify_password(password):
+            return error_response('Invalid credentials', 401)
 
-        token = generate_jwt_token(parent.id, parent.email or '')
+        parent = portal_user.partner_id
+        portal_user.record_login()
+
+        token = generate_jwt_token(parent.id, parent.email or '',
+                                   portal_user_id=portal_user.id)
         children = self._get_parent_children(parent)
 
         return json_response({
@@ -71,7 +70,11 @@ class AuthApiController(ApiBaseController):
     def refresh_token(self, **kwargs):
         """Refresh JWT token."""
         parent = request.parent
-        token = generate_jwt_token(parent.id, parent.email or '')
+        portal_user_id = getattr(request, 'portal_user', None)
+        token = generate_jwt_token(
+            parent.id, parent.email or '',
+            portal_user_id=portal_user_id.id if portal_user_id else None,
+        )
         return json_response({
             'success': True,
             'token': token,
@@ -101,12 +104,23 @@ class AuthApiController(ApiBaseController):
                 methods=['POST'], csrf=False, cors='*')
     @jwt_required
     def change_password(self, **kwargs):
-        """Change parent password."""
+        """Change portal user password."""
         data = get_request_data()
         new_password = data.get('new_password', '')
         if len(new_password) < 6:
             return error_response('Password must be at least 6 characters')
 
-        parent = request.parent
-        parent.sudo().write({'id_number': new_password})
+        portal_user = getattr(request, 'portal_user', None)
+        if portal_user:
+            portal_user.sudo().set_password(new_password)
+        else:
+            # Legacy fallback for old tokens without portal_user_id
+            parent = request.parent
+            portal_user = request.env['dar.portal.user'].sudo().search(
+                [('partner_id', '=', parent.id)], limit=1)
+            if portal_user:
+                portal_user.set_password(new_password)
+            else:
+                return error_response('No portal account found', 404)
+
         return json_response({'success': True, 'message': 'Password updated'})

@@ -67,6 +67,15 @@
                                 <span class="o_stat_text">Attendance %</span>
                             </div>
                         </button>
+                        <field name="has_portal_user" invisible="1"/>
+                        <button name="action_view_portal_user" type="object"
+                                class="oe_stat_button"
+                                icon="fa-key">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text" invisible="not has_portal_user">Portal Active</span>
+                                <span class="o_stat_text" invisible="has_portal_user">No Portal Account</span>
+                            </div>
+                        </button>
                     </div>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                     <field name="image_1920" widget="image" class="oe_avatar"/>

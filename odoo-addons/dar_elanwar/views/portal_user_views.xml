@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========================== -->
+    <!-- PORTAL USER VIEWS -->
+    <!-- ========================== -->
+
+    <!-- Portal User Tree View -->
+    <record id="view_portal_user_tree" model="ir.ui.view">
+        <field name="name">dar.portal.user.tree</field>
+        <field name="model">dar.portal.user</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="username"/>
+                <field name="guardian_name"/>
+                <field name="is_active" widget="boolean_toggle"/>
+                <field name="last_login"/>
+                <field name="login_count"/>
+                <field name="created_by"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Portal User Form View -->
+    <record id="view_portal_user_form" model="ir.ui.view">
+        <field name="name">dar.portal.user.form</field>
+        <field name="model">dar.portal.user</field>
+        <field name="arch" type="xml">
+            <form string="Portal User">
+                <header>
+                    <button name="action_set_password" type="object"
+                            string="Set Password" class="btn-primary"
+                            icon="fa-lock"/>
+                    <button name="action_generate_password" type="object"
+                            string="Generate Password" class="btn-secondary"
+                            icon="fa-random"
+                            confirm="This will generate a new random password. Continue?"/>
+                    <button name="action_toggle_active" type="object"
+                            string="Deactivate" class="btn-warning"
+                            icon="fa-ban"
+                            invisible="not is_active"/>
+                    <button name="action_toggle_active" type="object"
+                            string="Activate" class="btn-success"
+                            icon="fa-check"
+                            invisible="is_active"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="username"/>
+                        <h1>
+                            <field name="username" placeholder="Phone Number"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Account Information">
+                            <field name="partner_id"/>
+                            <field name="guardian_name"/>
+                            <field name="is_active"/>
+                            <field name="password_hash" invisible="1"/>
+                        </group>
+                        <group string="Statistics">
+                            <field name="last_login"/>
+                            <field name="login_count"/>
+                            <field name="created_by"/>
+                            <field name="create_date" string="Created On"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="notes" placeholder="Internal notes about this portal account..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Portal User Search View -->
+    <record id="view_portal_user_search" model="ir.ui.view">
+        <field name="name">dar.portal.user.search</field>
+        <field name="model">dar.portal.user</field>
+        <field name="arch" type="xml">
+            <search string="Search Portal Users">
+                <field name="username"/>
+                <field name="guardian_name"/>
+                <field name="partner_id"/>
+                <filter string="Active" name="active"
+                        domain="[('is_active', '=', True)]"/>
+                <filter string="Inactive" name="inactive"
+                        domain="[('is_active', '=', False)]"/>
+                <separator/>
+                <filter string="Never Logged In" name="never_logged"
+                        domain="[('last_login', '=', False)]"/>
+                <filter string="Logged In" name="logged_in"
+                        domain="[('last_login', '!=', False)]"/>
+                <group>
+                    <filter string="Status" name="group_active"
+                            context="{'group_by': 'is_active'}"/>
+                    <filter string="Created By" name="group_created_by"
+                            context="{'group_by': 'created_by'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Portal User Action -->
+    <record id="action_portal_user" model="ir.actions.act_window">
+        <field name="name">Portal Users</field>
+        <field name="res_model">dar.portal.user</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_portal_user_search"/>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a portal account for a guardian
+            </p>
+            <p>
+                Portal accounts allow guardians to log into the parent portal
+                to view their children's information, attendance, and payments.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu item under Students -->
+    <menuitem id="menu_education_portal_users"
+              name="Portal Users"
+              parent="menu_education_students"
+              action="action_portal_user"
+              groups="group_education_manager"
+              sequence="50"/>
+
+</odoo>

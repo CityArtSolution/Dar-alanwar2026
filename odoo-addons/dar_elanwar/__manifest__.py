@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Dar El-Anwar Educational Management',
-    'version': '19.0.4.0.0',
+    'version': '19.0.5.0.0',
     'category': 'Education',
     'summary': 'Complete Educational Institution Management System',
     'description': """
@@ -42,6 +42,7 @@ A comprehensive educational institution management system for managing:
         # Wizards
         'wizards/batch_payroll_wizard_views.xml',
         'wizards/report_wizard_views.xml',
+        'wizards/set_password_wizard_views.xml',
 
         # Views - Original
         'views/config_views.xml',
@@ -58,6 +59,9 @@ A comprehensive educational institution management system for managing:
         'views/communication_views.xml',
         'views/homework_views.xml',
         'views/menu_views.xml',
+
+        # Portal Users
+        'views/portal_user_views.xml',
 
         # Views - New Modules
         'views/education_discount_views.xml',
