@@ -62,13 +62,6 @@ class DarPortalUser(models.Model):
         readonly=True,
     )
 
-    _sql_constraints = [
-        ('username_unique', 'UNIQUE(username)',
-         'A portal user with this username already exists.'),
-        ('partner_unique', 'UNIQUE(partner_id)',
-         'This guardian already has a portal account.'),
-    ]
-
     @api.constrains('username')
     def _check_username_unique(self):
         for rec in self:
