@@ -69,6 +69,33 @@ class DarPortalUser(models.Model):
          'This guardian already has a portal account.'),
     ]
 
+    @api.constrains('username')
+    def _check_username_unique(self):
+        for rec in self:
+            existing = self.search([
+                ('username', '=', rec.username),
+                ('id', '!=', rec.id),
+            ], limit=1)
+            if existing:
+                raise ValidationError(
+                    _('Username "%s" is already used by portal account for %s. '
+                      'Each guardian must have a unique phone number as username.')
+                    % (rec.username, existing.guardian_name)
+                )
+
+    @api.constrains('partner_id')
+    def _check_partner_unique(self):
+        for rec in self:
+            existing = self.search([
+                ('partner_id', '=', rec.partner_id.id),
+                ('id', '!=', rec.id),
+            ], limit=1)
+            if existing:
+                raise ValidationError(
+                    _('Guardian "%s" already has a portal account (username: %s).')
+                    % (rec.partner_id.name, existing.username)
+                )
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
