@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Dar El-Anwar Educational Management',
-    'version': '19.0.5.0.0',
+    'version': '19.0.6.0.0',
     'category': 'Education',
     'summary': 'Complete Educational Institution Management System',
     'description': """
@@ -29,7 +29,7 @@ A comprehensive educational institution management system for managing:
     'author': 'Dar Al-Anwar Academy',
     'website': 'https://dar-alanwar.com',
     'license': 'LGPL-3',
-    'depends': ['base', 'mail', 'web'],
+    'depends': ['base', 'mail', 'web', 'account'],
     'data': [
         # Security
         'security/education_security.xml',
@@ -38,6 +38,7 @@ A comprehensive educational institution management system for managing:
         # Data
         'data/education_sequence.xml',
         'data/cron_data.xml',
+        'data/cron_financial_plan.xml',
 
         # Wizards
         'wizards/batch_payroll_wizard_views.xml',
@@ -58,17 +59,19 @@ A comprehensive educational institution management system for managing:
         'views/inventory_views.xml',
         'views/communication_views.xml',
         'views/homework_views.xml',
-        'views/menu_views.xml',
 
-        # Portal Users
-        'views/portal_user_views.xml',
-
-        # Views - New Modules
+        # Views - New Modules (actions must load before menus)
         'views/education_discount_views.xml',
         'views/education_admission_views.xml',
         'views/education_kids_area_views.xml',
         'views/education_content_views.xml',
         'views/res_config_settings_views.xml',
+
+        # Menus (after all action definitions)
+        'views/menu_views.xml',
+
+        # Portal Users (has menuitems referencing menu_views.xml)
+        'views/portal_user_views.xml',
 
         # Reports
         'reports/report_paperformat.xml',

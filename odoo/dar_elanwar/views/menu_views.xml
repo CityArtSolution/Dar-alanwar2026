@@ -259,6 +259,20 @@
               action="action_education_payment_receipt"
               sequence="40"/>
 
+    <!-- Discounts -->
+    <menuitem id="menu_education_discount"
+              name="Discounts"
+              parent="menu_education_subscriptions"
+              action="action_education_discount"
+              sequence="50"/>
+
+    <!-- Financial Plans -->
+    <menuitem id="menu_education_financial_plan"
+              name="Financial Plans"
+              parent="menu_education_subscriptions"
+              action="action_education_financial_plan"
+              sequence="60"/>
+
     <!-- ========================== -->
     <!-- ATTENDANCE MENU -->
     <!-- ========================== -->

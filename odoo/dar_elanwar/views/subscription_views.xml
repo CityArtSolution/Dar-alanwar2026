@@ -368,4 +368,123 @@
         <field name="view_mode">list,form</field>
     </record>
 
+    <!-- ============================================================ -->
+    <!-- Financial Plan Views                                        -->
+    <!-- ============================================================ -->
+
+    <record id="view_education_financial_plan_form" model="ir.ui.view">
+        <field name="name">education.financial.plan.form</field>
+        <field name="model">education.financial.plan</field>
+        <field name="arch" type="xml">
+            <form string="Financial Plan">
+                <header>
+                    <button name="action_generate_invoices"
+                            string="Generate Invoices"
+                            type="object"
+                            class="btn-primary"
+                            invisible="status != 'active'"/>
+                    <field name="status" widget="statusbar"
+                           statusbar_visible="draft,active,paid"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="student_id"/>
+                            <field name="subscription_id"/>
+                        </group>
+                        <group>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                            <field name="total_amount"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="paid_amount"/>
+                            <field name="remaining_amount"/>
+                            <field name="installment_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Installment Lines" name="lines">
+                            <field name="line_ids" widget="one2many" mode="list">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="due_date"/>
+                                    <field name="amount"/>
+                                    <field name="discount_id"/>
+                                    <field name="discounted_amount"/>
+                                    <field name="is_paid" widget="boolean_toggle"/>
+                                    <field name="payment_date"/>
+                                    <field name="invoice_id" readonly="1"/>
+                                    <field name="invoice_state" widget="badge"
+                                           decoration-info="invoice_state == 'draft'"
+                                           decoration-success="invoice_state == 'posted'"
+                                           decoration-muted="invoice_state == 'cancel'"
+                                           optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_education_financial_plan_tree" model="ir.ui.view">
+        <field name="name">education.financial.plan.tree</field>
+        <field name="model">education.financial.plan</field>
+        <field name="arch" type="xml">
+            <list decoration-success="status == 'active'"
+                  decoration-info="status == 'draft'"
+                  decoration-muted="status == 'cancelled'"
+                  decoration-danger="status == 'overdue'">
+                <field name="name"/>
+                <field name="student_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="total_amount"/>
+                <field name="paid_amount"/>
+                <field name="remaining_amount"/>
+                <field name="status" widget="badge"
+                       decoration-success="status in ('active', 'paid')"
+                       decoration-info="status == 'draft'"
+                       decoration-danger="status == 'overdue'"
+                       decoration-muted="status == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_education_financial_plan" model="ir.actions.act_window">
+        <field name="name">Financial Plans</field>
+        <field name="res_model">education.financial.plan</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new financial plan
+            </p>
+            <p>
+                Manage installment plans and auto-generate draft invoices.
+            </p>
+        </field>
+    </record>
+
+    <!-- Subscription form inherit: add discount fields -->
+    <record id="view_education_student_subscription_form_inherit_discount" model="ir.ui.view">
+        <field name="name">education.student.subscription.form.inherit.discount</field>
+        <field name="model">education.student.subscription</field>
+        <field name="inherit_id" ref="view_education_student_subscription_form"/>
+        <field name="arch" type="xml">
+            <field name="discount" position="after">
+                <field name="discount_id"/>
+                <field name="discount_amount"/>
+            </field>
+        </field>
+    </record>
+
 </odoo>
