@@ -8,6 +8,11 @@
       </div>
     </div>
 
+    <!-- Admin Layout -->
+    <template v-else-if="isAdminPage">
+      <AdminLayout />
+    </template>
+
     <!-- Public Layout (homepage, about, etc.) -->
     <template v-else-if="isPublicPage">
       <PublicNavBar />
@@ -39,11 +44,13 @@ import { useAuthStore } from '@/stores/auth'
 import NavBar from '@/components/NavBar.vue'
 import PublicNavBar from '@/components/PublicNavBar.vue'
 import FooterSection from '@/components/FooterSection.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const authStore = useAuthStore()
 const currentRoute = useRoute()
 
 const isPublicPage = computed(() => currentRoute.meta?.public === true)
+const isAdminPage = computed(() => currentRoute.meta?.admin === true)
 
 onMounted(() => {
   authStore.initAuth()

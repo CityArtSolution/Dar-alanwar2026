@@ -55,9 +55,9 @@ def migrate(cr, version):
         cr.execute("""
             INSERT INTO dar_portal_user
                 (partner_id, username, password_hash, is_active,
-                 login_count, create_date, write_date, create_uid, write_uid)
+                 user_type, login_count, create_date, write_date, create_uid, write_uid)
             VALUES
-                (%s, %s, %s, TRUE, 0, NOW(), NOW(), 1, 1)
+                (%s, %s, %s, TRUE, 'parent', 0, NOW(), NOW(), 1, 1)
         """, (partner_id, username, password_hash))
         created += 1
 

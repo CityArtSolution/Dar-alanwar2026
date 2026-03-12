@@ -48,7 +48,7 @@
             <tr v-if="!invoices.length">
               <td colspan="8" class="py-10 text-center text-gray-400 text-sm">لا توجد نتائج</td>
             </tr>
-            <tr v-for="inv in invoices" :key="inv.id" class="border-t border-gray-50 hover:bg-gray-50/50 transition-colors">
+            <tr v-for="inv in invoices" :key="inv.id" class="border-t border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer" @click="$router.push('/admin/invoices/' + inv.id)">
               <td class="py-3 px-4 font-mono text-xs text-gray-600">{{ inv.name }}</td>
               <td class="py-3 px-4">
                 <div class="flex items-center gap-3">

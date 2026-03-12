@@ -67,6 +67,12 @@ class EducationEmployee(models.Model):
     address = fields.Text(
         string='Address',
     )
+    partner_id = fields.Many2one(
+        'res.partner',
+        string='Related Partner',
+        ondelete='set null',
+        help='Linked partner record for portal access',
+    )
 
     # Job Information
     category_id = fields.Many2one(

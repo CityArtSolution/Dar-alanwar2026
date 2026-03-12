@@ -48,7 +48,7 @@
             <tr v-if="!subscriptions.length">
               <td colspan="8" class="py-10 text-center text-gray-400 text-sm">لا توجد نتائج</td>
             </tr>
-            <tr v-for="s in subscriptions" :key="s.id" class="border-t border-gray-50 hover:bg-gray-50/50 transition-colors">
+            <tr v-for="s in subscriptions" :key="s.id" class="border-t border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer" @click="$router.push('/admin/subscriptions/' + s.id)">
               <td class="py-3 px-4">
                 <div class="flex items-center gap-3">
                   <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">

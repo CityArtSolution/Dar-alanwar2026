@@ -11,3 +11,4 @@ from . import kidsarea_api
 from . import messages_api
 from . import config_api
 from . import voice_api
+from . import portal_users_api
