@@ -117,17 +117,17 @@ class EducationStudentSubscription(models.Model):
         string='Installments',
         compute='_compute_stat_counts',
     )
-    payment_count = fields.Integer(
-        string='Payments',
+    invoice_count = fields.Integer(
+        string='Invoices',
         compute='_compute_stat_counts',
     )
 
     def _compute_stat_counts(self):
         for record in self:
             record.installment_count = len(record.installment_ids)
-            record.payment_count = self.env['education.payment'].search_count([
-                ('installment_id', 'in', record.installment_ids.ids)
-            ])
+            record.invoice_count = len(
+                record.installment_ids.filtered(lambda i: i.invoice_id).mapped('invoice_id')
+            )
 
     # Stat button actions
     def action_view_installments(self):
@@ -142,17 +142,6 @@ class EducationStudentSubscription(models.Model):
             'context': {'default_subscription_id': self.id},
         }
 
-    def action_view_payments(self):
-        """View subscription payments"""
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Payments',
-            'res_model': 'education.payment',
-            'view_mode': 'list,form',
-            'domain': [('installment_id', 'in', self.installment_ids.ids)],
-        }
-
     def action_view_student(self):
         """View associated student"""
         self.ensure_one()
@@ -164,15 +153,42 @@ class EducationStudentSubscription(models.Model):
             'res_id': self.student_id.id,
         }
 
+    def action_view_invoices(self):
+        """View invoices generated from subscription installments"""
+        self.ensure_one()
+        invoice_ids = self.installment_ids.filtered(
+            lambda i: i.invoice_id
+        ).mapped('invoice_id').ids
+        if len(invoice_ids) == 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Invoice'),
+                'res_model': 'account.move',
+                'view_mode': 'form',
+                'res_id': invoice_ids[0],
+            }
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Invoices'),
+            'res_model': 'account.move',
+            'view_mode': 'list,form',
+            'domain': [('id', 'in', invoice_ids)],
+        }
+
     @api.depends('total_amount', 'discount')
     def _compute_net_amount(self):
         for record in self:
             record.net_amount = record.total_amount - record.discount
 
-    @api.depends('installment_ids.paid_amount')
+    @api.depends('installment_ids.invoice_id', 'installment_ids.invoice_id.amount_total',
+                 'installment_ids.invoice_id.amount_residual', 'installment_ids.invoice_id.state')
     def _compute_paid_amount(self):
         for record in self:
-            record.paid_amount = sum(record.installment_ids.mapped('paid_amount'))
+            total_paid = 0.0
+            for inst in record.installment_ids:
+                if inst.invoice_id and inst.invoice_id.state == 'posted':
+                    total_paid += inst.invoice_id.amount_total - inst.invoice_id.amount_residual
+            record.paid_amount = total_paid
 
     @api.depends('net_amount', 'paid_amount')
     def _compute_remaining_amount(self):

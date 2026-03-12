@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+import logging
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 
 class EducationInstallment(models.Model):
@@ -34,7 +38,8 @@ class EducationInstallment(models.Model):
     )
     paid_amount = fields.Float(
         string='Paid Amount',
-        default=0.0,
+        compute='_compute_paid_amount',
+        store=True,
     )
     remaining_amount = fields.Float(
         string='Remaining',
@@ -57,6 +62,19 @@ class EducationInstallment(models.Model):
     notes = fields.Text(
         string='Notes',
     )
+    invoice_id = fields.Many2one(
+        'account.move',
+        string='Invoice',
+        readonly=True,
+        ondelete='set null',
+        copy=False,
+    )
+    invoice_state = fields.Selection(
+        related='invoice_id.state',
+        string='Invoice Status',
+        readonly=True,
+        store=True,
+    )
 
     # Related payments
     payment_ids = fields.One2many(
@@ -64,6 +82,14 @@ class EducationInstallment(models.Model):
         'installment_id',
         string='Payments',
     )
+
+    @api.depends('invoice_id.amount_total', 'invoice_id.amount_residual', 'invoice_id.state')
+    def _compute_paid_amount(self):
+        for record in self:
+            if record.invoice_id and record.invoice_id.state == 'posted':
+                record.paid_amount = record.invoice_id.amount_total - record.invoice_id.amount_residual
+            else:
+                record.paid_amount = 0.0
 
     @api.depends('amount', 'paid_amount')
     def _compute_remaining_amount(self):
@@ -118,6 +144,48 @@ class EducationInstallment(models.Model):
             'res_model': 'res.partner',
             'view_mode': 'form',
             'res_id': self.student_id.id,
+        }
+
+    def action_create_invoice(self):
+        """Create a draft account.move invoice for this installment."""
+        self.ensure_one()
+        if self.invoice_id:
+            raise UserError(_('Invoice already exists for this installment.'))
+
+        student = self.student_id
+        partner = student.father_id or student.mother_id or student
+
+        income_account = self.env['account.account'].search(
+            [('account_type', 'in', ('income', 'income_other'))],
+            limit=1,
+        )
+
+        invoice_vals = {
+            'move_type': 'out_invoice',
+            'partner_id': partner.id,
+            'ref': "Subscription: %s - Installment #%s" % (
+                self.subscription_id.subscription_type_id.name or self.subscription_id.id,
+                self.sequence,
+            ),
+            'invoice_date': fields.Date.today(),
+            'invoice_line_ids': [(0, 0, {
+                'name': "Subscription: %s - Installment #%s" % (
+                    self.subscription_id.subscription_type_id.name or self.subscription_id.id,
+                    self.sequence,
+                ),
+                'quantity': 1,
+                'price_unit': self.amount,
+                'account_id': income_account.id if income_account else False,
+            })],
+        }
+        invoice = self.env['account.move'].create(invoice_vals)
+        self.invoice_id = invoice.id
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Invoice'),
+            'res_model': 'account.move',
+            'view_mode': 'form',
+            'res_id': invoice.id,
         }
 
     def name_get(self):
