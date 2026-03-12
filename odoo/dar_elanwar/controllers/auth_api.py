@@ -44,40 +44,53 @@ class AuthApiController(ApiBaseController):
         if not portal_user.verify_password(password):
             return error_response('Invalid credentials', 401)
 
-        parent = portal_user.partner_id
+        partner = portal_user.partner_id
+        user_type = portal_user.user_type or 'parent'
         portal_user.record_login()
 
-        token = generate_jwt_token(parent.id, parent.email or '',
-                                   portal_user_id=portal_user.id)
-        children = self._get_parent_children(parent)
+        token = generate_jwt_token(partner.id, partner.email or '',
+                                   portal_user_id=portal_user.id,
+                                   user_type=user_type)
 
-        return json_response({
+        response_data = {
             'success': True,
             'token': token,
+            'user_type': user_type,
             'parent': {
-                'id': parent.id,
-                'name': parent.name,
-                'email': parent.email,
-                'phone': parent.phone,
-                'relation': parent.guardian_relation,
+                'id': partner.id,
+                'name': partner.name,
+                'email': partner.email,
+                'phone': partner.phone,
+                'relation': getattr(partner, 'guardian_relation', None),
             },
-            'children': [self._serialize_student(c) for c in children],
-        })
+        }
+
+        # Only include children for parent users
+        if user_type == 'parent':
+            children = self._get_parent_children(partner)
+            response_data['children'] = [self._serialize_student(c) for c in children]
+        else:
+            response_data['children'] = []
+
+        return json_response(response_data)
 
     @http.route('/api/auth/refresh', type='http', auth='none',
                 methods=['POST'], csrf=False, cors='*')
     @jwt_required
     def refresh_token(self, **kwargs):
         """Refresh JWT token."""
-        parent = request.parent
-        portal_user_id = getattr(request, 'portal_user', None)
+        partner = request.parent
+        portal_user = getattr(request, 'portal_user', None)
+        user_type = portal_user.user_type if portal_user else 'parent'
         token = generate_jwt_token(
-            parent.id, parent.email or '',
-            portal_user_id=portal_user_id.id if portal_user_id else None,
+            partner.id, partner.email or '',
+            portal_user_id=portal_user.id if portal_user else None,
+            user_type=user_type,
         )
         return json_response({
             'success': True,
             'token': token,
+            'user_type': user_type,
         })
 
     @http.route('/api/auth/profile', type='http', auth='none',

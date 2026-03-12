@@ -101,7 +101,7 @@ Dar Al-Anwar is an educational academy (nursery, courses, online) with TWO integ
 | 2.3 | Attendance + Employee Enhancements | 2 | Not Started | **DONE (Odoo)** | Check-in/out, shifts, batch payroll, loans, penalties |
 | 2.4 | Parent Self-Signup + Approval Flow **[NEW]** | 2 | Not Started | **NOT DONE** | No registration endpoint or UI |
 | 2.5 | Paymob Integration + Cart + Checkout **[NEW]** | 2 | Not Started | **NOT DONE** | No Paymob SDK, checkout is static placeholder |
-| 2.6 | Admin Dashboard — Core Screens **[NEW]** | 2 | Not Started | **NOT DONE** | No admin portal screens |
+| 2.6 | Admin Dashboard — Core Screens **[NEW]** | 2 | In Progress | **PARTIAL (~60%)** | Dashboard + Students + Parents + Subscriptions + Invoices pages DONE with real API data. Remaining: Teachers, Attendance, Content, Kids Area, Messages, Reports, Settings pages |
 | 2.7 | Portal: Parent Dashboard + Academic View | 2 | Not Started | **PARTIAL** | Dashboard + children + payments work; attendance calendar, grades, goals NOT wired |
 
 **Phase 2 Actual: ~45% complete** (Odoo backend done, portal features lagging)
@@ -271,13 +271,35 @@ Dar Al-Anwar is an educational academy (nursery, courses, online) with TWO integ
 - No assessment recording UI
 - No messaging UI
 
-### 5.4 Admin Portal Dashboard — NOT DONE (0%)
-- No admin login
-- No user management screens
-- No content management screens
-- No billing/finance screens
-- No Kids Area management screens
-- No reports/export screens
+### 5.4 Admin Portal Dashboard — PARTIAL (~60%)
+
+**DONE:**
+- [x] Admin user type (`user_type` field on `dar.portal.user` — supports parent/admin/teacher/student)
+- [x] Admin JWT authentication (`admin_jwt_required` decorator, `user_type` in token)
+- [x] Admin login + redirect (admin users redirect to `/admin`, parents to `/dashboard`)
+- [x] Admin layout (sidebar with logo, top bar, responsive mobile menu)
+- [x] Dashboard page — real stats: student/parent/teacher counts, active subscriptions, total revenue, attendance rate, subscription breakdown, invoice breakdown, recent students, today summary
+- [x] Students page — paginated list with search, department filter, status filter, attendance bars
+- [x] Parents page — paginated list with search, phone/email/relation/children count/balance
+- [x] Subscriptions page — paginated list with search, status filter, amounts (total/paid/remaining)
+- [x] Invoices page — paginated list with search, status filter (paid/pending/draft/overdue), amounts
+
+**API Endpoints (all `@admin_jwt_required`):**
+- [x] `GET /api/admin/dashboard` — full dashboard stats
+- [x] `GET /api/admin/students` — paginated with search/filters
+- [x] `GET /api/admin/parents` — paginated with search
+- [x] `GET /api/admin/subscriptions` — paginated with search/status
+- [x] `GET /api/admin/invoices` — paginated with search/status
+
+**NOT DONE:**
+- [ ] Teachers management page
+- [ ] Attendance management page
+- [ ] Content management page
+- [ ] Kids Area management page
+- [ ] Messages management page
+- [ ] Reports/export page
+- [ ] Settings page
+- [ ] CRUD operations (create/edit/delete) — currently read-only lists
 
 ---
 
@@ -317,8 +339,20 @@ All 7 endpoints (`/api/student/*`) not implemented.
 ### 6.4 Teacher Endpoints — NOT DONE
 All 5 endpoints (`/api/teacher/*`) not implemented.
 
-### 6.5 Admin Endpoints — NOT DONE
-All 11 endpoints (`/api/admin/*`) not implemented.
+### 6.5 Admin Endpoints — PARTIAL (5 of 11)
+| Endpoint | Method | Status |
+|----------|--------|--------|
+| `/api/admin/dashboard` | GET | **DONE** |
+| `/api/admin/students` | GET | **DONE** |
+| `/api/admin/parents` | GET | **DONE** |
+| `/api/admin/subscriptions` | GET | **DONE** |
+| `/api/admin/invoices` | GET | **DONE** |
+| `/api/admin/teachers` | GET | NOT DONE |
+| `/api/admin/attendance` | GET, POST | NOT DONE |
+| `/api/admin/content` | GET, POST, PUT | NOT DONE |
+| `/api/admin/kidsarea` | GET, POST | NOT DONE |
+| `/api/admin/users` | GET, POST, PUT | NOT DONE |
+| `/api/admin/reports` | GET | NOT DONE |
 
 ### 6.6 E-Commerce & Payment — NOT DONE
 | Endpoint | Method | Status |
@@ -333,7 +367,7 @@ All 11 endpoints (`/api/admin/*`) not implemented.
 ### 6.7 Other Endpoints — Mostly DONE
 Kids area (5 endpoints), messages (4 endpoints), config (3 endpoints), voice (2 endpoints) — all **DONE**.
 
-**API Summary: ~27 of ~50 endpoints done (~54%)**
+**API Summary: ~32 of ~50 endpoints done (~64%)**
 
 ---
 
@@ -357,13 +391,13 @@ Kids area (5 endpoints), messages (4 endpoints), config (3 endpoints), voice (2 
 | Odoo Backend Models | **95%** | 64 models, all major modules built |
 | Odoo Views & Menus | **95%** | 20 view files, complete menu structure |
 | Odoo Security/ACL | **95%** | 200+ access rules, 6 user groups |
-| REST API Controllers | **54%** | ~27 of ~50 endpoints done (parent side complete) |
+| REST API Controllers | **64%** | ~32 of ~50 endpoints done (parent + admin dashboard/lists) |
 | QWeb Reports | **20%** | 10 of 50 reports built |
 | Portal - Public Pages | **90%** | 18 public pages with full UI |
 | Portal - Parent Features | **50%** | Login, dashboard, children, payments; missing Paymob/cart |
 | Portal - Student Features | **0%** | No student login or screens |
 | Portal - Teacher Features | **0%** | No teacher login or screens |
-| Portal - Admin Dashboard | **0%** | No admin portal screens |
+| Portal - Admin Dashboard | **60%** | Dashboard + Students + Parents + Subscriptions + Invoices with real data. Remaining: 7 pages + CRUD |
 | Paymob Integration | **0%** | Not started |
 | AI Voice Recognition | **10%** | Backend endpoint only |
 
@@ -372,12 +406,12 @@ Kids area (5 endpoints), messages (4 endpoints), config (3 endpoints), voice (2 
 | Phase | Budget | Tasks Done | Completion | Key Remaining |
 |-------|--------|-----------|-----------|---------------|
 | Phase 1: Foundation | $600 | 3.5 of 4 | **85%** | Multi-user-type auth |
-| Phase 2: Core + Portal | $400 | 3 of 7 | **45%** | Self-signup, Paymob, admin dashboard, parent academic views |
+| Phase 2: Core + Portal | $400 | 3.5 of 7 | **50%** | Self-signup, Paymob, admin dashboard (partial), parent academic views |
 | Phase 3: Content + Portals | $400 | 2 of 6 | **30%** | Student portal, teacher portal, API completion |
 | Phase 4: Reports + Comms | $400 | 0 of 5 | **20%** | 40 reports, communication portal UI |
 | Phase 5: Testing | $200 | 0 of 3 | **5%** | Full testing, docs, deployment |
 
-### Overall Project: **~38% Complete**
+### Overall Project: **~42% Complete**
 
 ---
 

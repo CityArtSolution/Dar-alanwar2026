@@ -33,11 +33,12 @@ def error_response(message, status=400, code=None):
     return json_response(body, status=status)
 
 
-def generate_jwt_token(parent_id, email, portal_user_id=None):
-    """Generate a JWT token for a parent."""
+def generate_jwt_token(parent_id, email, portal_user_id=None, user_type='parent'):
+    """Generate a JWT token for a portal user."""
     payload = {
         'parent_id': parent_id,
         'email': email,
+        'user_type': user_type,
         'exp': datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS),
         'iat': datetime.utcnow(),
     }
@@ -57,37 +58,81 @@ def decode_jwt_token(token):
         return None
 
 
+def _authenticate_token():
+    """Shared authentication logic. Returns (payload, error_response) tuple."""
+    auth_header = request.httprequest.headers.get('Authorization', '')
+    if not auth_header.startswith('Bearer '):
+        return None, error_response('Missing or invalid Authorization header', 401,
+                                    'AUTH_REQUIRED')
+
+    token = auth_header[7:]
+    payload = decode_jwt_token(token)
+    if not payload:
+        return None, error_response('Invalid or expired token', 401,
+                                    'TOKEN_INVALID')
+
+    # Check portal user if present in token
+    portal_user_id = payload.get('portal_user_id')
+    if portal_user_id:
+        portal_user = request.env['dar.portal.user'].sudo().browse(portal_user_id)
+        if not portal_user.exists():
+            return None, error_response('Portal account not found', 401, 'ACCOUNT_NOT_FOUND')
+        if not portal_user.is_active:
+            return None, error_response('Portal account is disabled', 401, 'ACCOUNT_DISABLED')
+        request.portal_user = portal_user
+
+    return payload, None
+
+
 def jwt_required(func):
     """Decorator that requires a valid JWT token."""
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        auth_header = request.httprequest.headers.get('Authorization', '')
-        if not auth_header.startswith('Bearer '):
-            return error_response('Missing or invalid Authorization header', 401,
-                                  'AUTH_REQUIRED')
+        payload, err = _authenticate_token()
+        if err:
+            return err
 
-        token = auth_header[7:]
-        payload = decode_jwt_token(token)
-        if not payload:
-            return error_response('Invalid or expired token', 401,
-                                  'TOKEN_INVALID')
+        user_type = payload.get('user_type', 'parent')
 
-        # Check portal user if present in token (new tokens)
-        portal_user_id = payload.get('portal_user_id')
-        if portal_user_id:
-            portal_user = request.env['dar.portal.user'].sudo().browse(portal_user_id)
-            if not portal_user.exists():
-                return error_response('Portal account not found', 401, 'ACCOUNT_NOT_FOUND')
-            if not portal_user.is_active:
-                return error_response('Portal account is disabled', 401, 'ACCOUNT_DISABLED')
-            request.portal_user = portal_user
+        # Admin users don't need a guardian partner
+        if user_type == 'admin':
+            partner = request.env['res.partner'].sudo().browse(
+                payload.get('parent_id'))
+            if not partner.exists():
+                return error_response('User not found', 401, 'USER_NOT_FOUND')
+            request.parent = partner
+            request.admin_mode = True
+        else:
+            parent = request.env['res.partner'].sudo().browse(
+                payload.get('parent_id'))
+            if not parent.exists() or not parent.is_guardian:
+                return error_response('Parent not found', 401, 'PARENT_NOT_FOUND')
+            request.parent = parent
+            request.admin_mode = False
 
-        parent = request.env['res.partner'].sudo().browse(
+        return func(*args, **kwargs)
+    return wrapper
+
+
+def admin_jwt_required(func):
+    """Decorator that requires a valid JWT token with user_type='admin'."""
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        payload, err = _authenticate_token()
+        if err:
+            return err
+
+        user_type = payload.get('user_type', 'parent')
+        if user_type != 'admin':
+            return error_response('Admin access required', 403, 'ADMIN_REQUIRED')
+
+        partner = request.env['res.partner'].sudo().browse(
             payload.get('parent_id'))
-        if not parent.exists() or not parent.is_guardian:
-            return error_response('Parent not found', 401, 'PARENT_NOT_FOUND')
+        if not partner.exists():
+            return error_response('User not found', 401, 'USER_NOT_FOUND')
+        request.parent = partner
+        request.admin_mode = True
 
-        request.parent = parent
         return func(*args, **kwargs)
     return wrapper
 

@@ -13,6 +13,7 @@
             <list>
                 <field name="username"/>
                 <field name="guardian_name"/>
+                <field name="user_type"/>
                 <field name="is_active" widget="boolean_toggle"/>
                 <field name="last_login"/>
                 <field name="login_count"/>
@@ -55,6 +56,7 @@
                         <group string="Account Information">
                             <field name="partner_id"/>
                             <field name="guardian_name"/>
+                            <field name="user_type"/>
                             <field name="is_active"/>
                             <field name="password_hash" invisible="1"/>
                         </group>
@@ -86,6 +88,10 @@
                         domain="[('is_active', '=', True)]"/>
                 <filter string="Inactive" name="inactive"
                         domain="[('is_active', '=', False)]"/>
+                <filter string="Parents" name="parents"
+                        domain="[('user_type', '=', 'parent')]"/>
+                <filter string="Admins" name="admins"
+                        domain="[('user_type', '=', 'admin')]"/>
                 <separator/>
                 <filter string="Never Logged In" name="never_logged"
                         domain="[('last_login', '=', False)]"/>

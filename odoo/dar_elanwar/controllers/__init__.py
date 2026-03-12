@@ -1,5 +1,6 @@
 from . import api_base
 from . import auth_api
+from . import admin_api
 from . import children_api
 from . import attendance_api
 from . import invoices_api

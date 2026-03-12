@@ -182,6 +182,80 @@ const routes = [
     component: () => import('@/views/MessagesView.vue'),
     meta: { auth: true },
   },
+
+  // Admin pages
+  {
+    path: '/admin',
+    name: 'AdminDashboard',
+    component: () => import('@/views/admin/AdminDashboard.vue'),
+    meta: { admin: true },
+  },
+  {
+    path: '/admin/students',
+    name: 'AdminStudents',
+    component: () => import('@/views/admin/AdminStudents.vue'),
+    meta: { admin: true },
+  },
+  {
+    path: '/admin/parents',
+    name: 'AdminParents',
+    component: () => import('@/views/admin/AdminParents.vue'),
+    meta: { admin: true },
+  },
+  {
+    path: '/admin/teachers',
+    name: 'AdminTeachers',
+    component: () => import('@/views/admin/AdminPlaceholder.vue'),
+    meta: { admin: true },
+  },
+  {
+    path: '/admin/subscriptions',
+    name: 'AdminSubscriptions',
+    component: () => import('@/views/admin/AdminSubscriptions.vue'),
+    meta: { admin: true },
+  },
+  {
+    path: '/admin/invoices',
+    name: 'AdminInvoices',
+    component: () => import('@/views/admin/AdminInvoices.vue'),
+    meta: { admin: true },
+  },
+  {
+    path: '/admin/attendance',
+    name: 'AdminAttendance',
+    component: () => import('@/views/admin/AdminPlaceholder.vue'),
+    meta: { admin: true },
+  },
+  {
+    path: '/admin/content',
+    name: 'AdminContent',
+    component: () => import('@/views/admin/AdminPlaceholder.vue'),
+    meta: { admin: true },
+  },
+  {
+    path: '/admin/kids-area',
+    name: 'AdminKidsArea',
+    component: () => import('@/views/admin/AdminPlaceholder.vue'),
+    meta: { admin: true },
+  },
+  {
+    path: '/admin/messages',
+    name: 'AdminMessages',
+    component: () => import('@/views/admin/AdminPlaceholder.vue'),
+    meta: { admin: true },
+  },
+  {
+    path: '/admin/reports',
+    name: 'AdminReports',
+    component: () => import('@/views/admin/AdminPlaceholder.vue'),
+    meta: { admin: true },
+  },
+  {
+    path: '/admin/settings',
+    name: 'AdminSettings',
+    component: () => import('@/views/admin/AdminPlaceholder.vue'),
+    meta: { admin: true },
+  },
 ]
 
 const router = createRouter({
@@ -195,10 +269,20 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
-  if (to.meta.auth && !authStore.isAuthenticated) {
+  if (to.meta.admin) {
+    // Admin routes require auth + admin role
+    if (!authStore.isAuthenticated) {
+      next('/login')
+    } else if (!authStore.isAdmin) {
+      next('/dashboard')
+    } else {
+      next()
+    }
+  } else if (to.meta.auth && !authStore.isAuthenticated) {
     next('/login')
   } else if (to.meta.guest && authStore.isAuthenticated) {
-    next('/dashboard')
+    // Redirect logged-in users away from login page
+    next(authStore.isAdmin ? '/admin' : '/dashboard')
   } else {
     next()
   }

@@ -134,7 +134,7 @@ async function handleLogin() {
 
   const success = await authStore.login(credentials)
   if (success) {
-    router.push('/dashboard')
+    router.push(authStore.isAdmin ? '/admin' : '/dashboard')
   }
 }
 </script>

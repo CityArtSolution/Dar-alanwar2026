@@ -18,17 +18,23 @@ class DarPortalUser(models.Model):
     _order = 'create_date desc'
     _rec_name = 'username'
 
+    user_type = fields.Selection([
+        ('parent', 'Parent'),
+        ('admin', 'Admin'),
+        ('teacher', 'Teacher'),
+        ('student', 'Student'),
+    ], string='User Type', default='parent', required=True, index=True)
+
     partner_id = fields.Many2one(
         'res.partner',
-        string='Guardian',
+        string='Related Contact',
         required=True,
         ondelete='cascade',
-        domain=[('is_guardian', '=', True)],
         index=True,
     )
     guardian_name = fields.Char(
         related='partner_id.name',
-        string='Guardian Name',
+        string='Contact Name',
         store=True,
     )
     username = fields.Char(

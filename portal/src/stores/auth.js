@@ -8,11 +8,13 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref(null)
   const parent = ref(null)
   const children = ref([])
+  const userType = ref(null)
   const loading = ref(false)
   const error = ref(null)
   const initialized = ref(false)
 
   const isAuthenticated = computed(() => !!token.value)
+  const isAdmin = computed(() => userType.value === 'admin')
   const parentName = computed(() => parent.value?.name || '')
   const parentId = computed(() => parent.value?.id || null)
 
@@ -42,6 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
         token.value = data.token
         parent.value = data.parent
         children.value = data.children || []
+        userType.value = data.user_type || 'parent'
         localStorage.setItem('logged_in', 'true')
         return true
       }
@@ -62,6 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
         token.value = data.token
         if (data.parent) parent.value = data.parent
         if (data.children) children.value = data.children
+        if (data.user_type) userType.value = data.user_type
         localStorage.setItem('logged_in', 'true')
         return true
       }
@@ -100,6 +104,7 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     parent.value = null
     children.value = []
+    userType.value = null
     initialized.value = true
     return false
   }
@@ -108,13 +113,14 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     parent.value = null
     children.value = []
+    userType.value = null
     localStorage.removeItem('logged_in')
     router.push('/login')
   }
 
   return {
-    token, parent, children, loading, error, initialized,
-    isAuthenticated, parentName, parentId,
+    token, parent, children, userType, loading, error, initialized,
+    isAuthenticated, isAdmin, parentName, parentId,
     login, logout, refreshToken, checkTokenExpiry, initAuth, fetchProfile,
   }
 })
